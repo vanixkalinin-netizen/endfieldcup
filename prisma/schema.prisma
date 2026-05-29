@@ -1,0 +1,105 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+enum VerificationPurpose {
+  EMAIL_CONFIRMATION
+}
+
+enum EventStatus {
+  DRAFT
+  PUBLISHED
+  CLOSED
+  COMPLETED
+}
+
+enum ApplicationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model User {
+  id                String             @id @default(cuid())
+  nickname          String             @unique
+  email             String             @unique
+  passwordHash      String
+  bio               String             @default("")
+  role              UserRole           @default(USER)
+  isVerified        Boolean            @default(false)
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  applications      EventApplication[]
+  notifications     Notification[]
+  verificationCodes VerificationCode[]
+}
+
+model VerificationCode {
+  id         String              @id @default(cuid())
+  email      String
+  code       String
+  purpose    VerificationPurpose @default(EMAIL_CONFIRMATION)
+  expiresAt  DateTime
+  consumedAt DateTime?
+  createdAt  DateTime            @default(now())
+  userId     String?
+  user       User?               @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([email, purpose])
+}
+
+model Event {
+  id              String             @id @default(cuid())
+  title           String
+  slug            String             @unique
+  summary         String
+  description     String
+  bracketState    String             @default("")
+  location        String?
+  maxParticipants Int?
+  startsAt        DateTime
+  endsAt          DateTime
+  status          EventStatus        @default(PUBLISHED)
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  applications    EventApplication[]
+}
+
+model EventApplication {
+  discordNickname String
+  id        String            @id @default(cuid())
+  note      String?
+  status    ApplicationStatus @default(PENDING)
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+  eventId   String
+  userId    String
+  event     Event             @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user      User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, userId])
+  @@index([userId, status])
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  title     String
+  message   String
+  href      String?
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+  readAt    DateTime?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isRead, createdAt])
+}
