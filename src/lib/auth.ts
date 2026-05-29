@@ -21,6 +21,18 @@ function getSecret() {
   );
 }
 
+function isSecureCookieEnabled() {
+  if (process.env.AUTH_COOKIE_SECURE === "true") {
+    return true;
+  }
+
+  if (process.env.AUTH_COOKIE_SECURE === "false") {
+    return false;
+  }
+
+  return process.env.NODE_ENV === "production";
+}
+
 export async function createSession(user: Pick<User, "id" | "email" | "nickname" | "role">) {
   const token = await new SignJWT({
     role: user.role,
@@ -38,7 +50,7 @@ export async function createSession(user: Pick<User, "id" | "email" | "nickname"
   cookieStore.set(COOKIE_NAME, token, {
     httpOnly: true,
     sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
+    secure: isSecureCookieEnabled(),
     path: "/",
     maxAge: SESSION_DURATION,
   });
