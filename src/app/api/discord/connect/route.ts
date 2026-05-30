@@ -5,6 +5,7 @@ import { getCurrentUser } from "@/lib/auth";
 import {
   buildDiscordAuthorizationUrl,
   DISCORD_OAUTH_COOKIE,
+  getDiscordAppOrigin,
   isDiscordAuthConfigured,
   isSecureCookieEnabled,
   sanitizeDiscordNextPath,
@@ -17,13 +18,18 @@ export async function GET(request: Request) {
     requestUrl.searchParams.get("next"),
     "/profile",
   );
+  const baseOrigin = getDiscordAppOrigin();
 
   if (!user) {
-    return NextResponse.redirect(new URL("/login", request.url));
+    return NextResponse.redirect(
+      baseOrigin ? new URL("/login", `${baseOrigin}/`) : new URL("/login", request.url),
+    );
   }
 
   if (!isDiscordAuthConfigured()) {
-    const errorUrl = new URL(nextPath, request.url);
+    const errorUrl = baseOrigin
+      ? new URL(nextPath, `${baseOrigin}/`)
+      : new URL(nextPath, request.url);
     errorUrl.searchParams.set("discord", "config");
     return NextResponse.redirect(errorUrl);
   }

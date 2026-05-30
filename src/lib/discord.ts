@@ -69,6 +69,20 @@ export function getDiscordGuildInviteUrl() {
   return readDiscordConfig()?.guildInviteUrl || null;
 }
 
+export function getDiscordAppOrigin() {
+  const config = readDiscordConfig();
+
+  if (!config) {
+    return null;
+  }
+
+  try {
+    return new URL(config.redirectUri).origin;
+  } catch {
+    return null;
+  }
+}
+
 export function sanitizeDiscordNextPath(
   nextPath: string | null | undefined,
   fallback: string,

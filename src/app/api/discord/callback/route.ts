@@ -5,6 +5,7 @@ import { getCurrentUser } from "@/lib/auth";
 import {
   DISCORD_OAUTH_COOKIE,
   exchangeDiscordCode,
+  getDiscordAppOrigin,
   fetchDiscordGuildMember,
   fetchDiscordUser,
   isDiscordAuthConfigured,
@@ -13,7 +14,10 @@ import {
 import { prisma } from "@/lib/prisma";
 
 function buildRedirectUrl(request: Request, nextPath: string, status: string) {
-  const url = new URL(nextPath, request.url);
+  const baseOrigin = getDiscordAppOrigin();
+  const url = baseOrigin
+    ? new URL(nextPath, `${baseOrigin}/`)
+    : new URL(nextPath, request.url);
   url.searchParams.set("discord", status);
   return url;
 }
@@ -22,7 +26,10 @@ export async function GET(request: Request) {
   const user = await getCurrentUser();
 
   if (!user) {
-    return NextResponse.redirect(new URL("/login", request.url));
+    const baseOrigin = getDiscordAppOrigin();
+    return NextResponse.redirect(
+      baseOrigin ? new URL("/login", `${baseOrigin}/`) : new URL("/login", request.url),
+    );
   }
 
   const requestUrl = new URL(request.url);
