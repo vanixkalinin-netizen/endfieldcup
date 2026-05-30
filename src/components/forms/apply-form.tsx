@@ -8,9 +8,10 @@ import { initialFormState } from "@/lib/validators";
 
 type ApplyFormProps = {
   eventId: string;
+  discordLabel: string;
 };
 
-export function ApplyForm({ eventId }: ApplyFormProps) {
+export function ApplyForm({ eventId, discordLabel }: ApplyFormProps) {
   const [state, formAction] = useActionState(
     applyToEventAction,
     initialFormState,
@@ -23,20 +24,11 @@ export function ApplyForm({ eventId }: ApplyFormProps) {
     >
       <input type="hidden" name="eventId" value={eventId} />
 
-      <div className="space-y-2">
-        <label className="field-label" htmlFor={`discord-${eventId}`}>
-          Ваш ник в Discord
-        </label>
-        <input
-          id={`discord-${eventId}`}
-          name="discordNickname"
-          className="field-input"
-          defaultValue={state.values?.discordNickname ?? ""}
-          placeholder="username#1234 или username"
-        />
-        {state.fieldErrors?.discordNickname ? (
-          <p className="field-error">{state.fieldErrors.discordNickname[0]}</p>
-        ) : null}
+      <div className="rounded-[20px] border border-white/8 bg-white/[0.04] p-4">
+        <p className="text-[11px] uppercase tracking-[0.28em] text-white/35">
+          Discord профиль
+        </p>
+        <p className="mt-2 text-sm text-white/72">{discordLabel}</p>
       </div>
 
       <div className="space-y-2">

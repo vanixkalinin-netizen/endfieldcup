@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { ApplicationStatus } from "@prisma/client";
+
 import { StatusPill } from "@/components/status-pill";
 import { requireUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -26,7 +27,6 @@ export default async function DashboardPage() {
           <h2 className="mt-4 font-heading text-4xl font-bold uppercase tracking-[0.08em] text-white">
             {user.nickname}
           </h2>
-          <p className="mt-3 text-white/58">{user.email}</p>
         </div>
         <div className="rounded-[24px] border border-white/8 bg-white/[0.03] p-5 text-sm text-white/56">
           <p className="text-xs uppercase tracking-[0.3em] text-white/35">

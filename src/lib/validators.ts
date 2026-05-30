@@ -7,10 +7,6 @@ export const registerSchema = z
       .trim()
       .min(3, "Минимум 3 символа")
       .max(24, "Максимум 24 символа"),
-    email: z
-      .string()
-      .email("Введите корректную почту")
-      .transform((value) => value.toLowerCase()),
     password: z
       .string()
       .min(8, "Пароль должен быть не короче 8 символов")
@@ -24,10 +20,11 @@ export const registerSchema = z
   });
 
 export const loginSchema = z.object({
-  email: z
+  nickname: z
     .string()
-    .email("Введите корректную почту")
-    .transform((value) => value.toLowerCase()),
+    .trim()
+    .min(3, "Введите ник")
+    .max(24, "Максимум 24 символа"),
   password: z.string().min(1, "Введите пароль"),
 });
 
@@ -49,11 +46,6 @@ export const eventSchema = z.object({
 
 export const applicationSchema = z.object({
   eventId: z.string().cuid("Некорректное событие"),
-  discordNickname: z
-    .string()
-    .trim()
-    .min(2, "Введите ваш ник в Discord")
-    .max(80, "Максимум 80 символов"),
   note: z
     .string()
     .trim()

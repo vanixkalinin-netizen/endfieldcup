@@ -6,6 +6,15 @@ import { EventBracket } from "@/components/event-bracket";
 import { ApplyForm } from "@/components/forms/apply-form";
 import { StatusPill } from "@/components/status-pill";
 import { getCurrentUser } from "@/lib/auth";
+import {
+  getDiscordFeedback,
+  getDiscordFeedbackClasses,
+  getDiscordGuildInviteUrl,
+  getDiscordGuildName,
+  isDiscordAuthConfigured,
+  resolveDiscordApplicationNickname,
+  resolveDiscordIdentityLabel,
+} from "@/lib/discord";
 import { prisma } from "@/lib/prisma";
 import { formatDate } from "@/lib/utils";
 
@@ -13,10 +22,21 @@ type EventPageProps = {
   params: Promise<{
     slug: string;
   }>;
+  searchParams: Promise<{
+    discord?: string | string[];
+  }>;
 };
 
-export default async function EventPage({ params }: EventPageProps) {
+function takeFirst(value: string | string[] | undefined) {
+  return Array.isArray(value) ? value[0] : value;
+}
+
+export default async function EventPage({
+  params,
+  searchParams,
+}: EventPageProps) {
   const { slug } = await params;
+  const query = await searchParams;
   const decodedSlug = decodeURIComponent(slug);
   const [currentUser, event] = await Promise.all([
     getCurrentUser(),
@@ -49,6 +69,7 @@ export default async function EventPage({ params }: EventPageProps) {
       nickname: application.user.nickname,
       discordNickname: application.discordNickname,
     }));
+
   const currentApplication = event.applications.find(
     (application) =>
       application.userId === currentUser?.id &&
@@ -56,6 +77,23 @@ export default async function EventPage({ params }: EventPageProps) {
   );
   const isRegistrationOpen = event.status === EventStatus.PUBLISHED;
   const isEventCompleted = event.status === EventStatus.COMPLETED;
+  const discordStatus = takeFirst(query.discord);
+  const discordFeedback = getDiscordFeedback(discordStatus);
+  const discordConfigured = isDiscordAuthConfigured();
+  const discordGuildName = getDiscordGuildName();
+  const discordInviteUrl = getDiscordGuildInviteUrl();
+  const discordIdentity = currentUser
+    ? resolveDiscordIdentityLabel(currentUser)
+    : null;
+  const isDiscordReady = Boolean(
+    currentUser?.discordId &&
+      currentUser.discordLinkedAt &&
+      currentUser.discordMemberAt &&
+      !currentUser.discordPending,
+  );
+  const discordConnectHref = `/api/discord/connect?next=${encodeURIComponent(
+    `/events/${event.slug}`,
+  )}`;
 
   return (
     <div className="space-y-5">
@@ -97,7 +135,13 @@ export default async function EventPage({ params }: EventPageProps) {
             </div>
           </div>
 
-          <div className="w-full max-w-sm rounded-[24px] border border-white/8 bg-white/[0.03] p-5">
+          <div className="w-full max-w-sm space-y-4 rounded-[24px] border border-white/8 bg-white/[0.03] p-5">
+            {discordFeedback ? (
+              <div className={getDiscordFeedbackClasses(discordFeedback.tone)}>
+                {discordFeedback.message}
+              </div>
+            ) : null}
+
             {currentApplication ? (
               <div className="space-y-4">
                 <div className="flex items-center gap-3">
@@ -115,12 +159,56 @@ export default async function EventPage({ params }: EventPageProps) {
               </div>
             ) : isRegistrationOpen ? (
               currentUser ? (
-                <ApplyForm eventId={event.id} />
+                isDiscordReady ? (
+                  <ApplyForm
+                    eventId={event.id}
+                    discordLabel={resolveDiscordApplicationNickname(currentUser)}
+                  />
+                ) : (
+                  <div className="space-y-4">
+                    <div className="rounded-[22px] border border-white/8 bg-white/[0.04] p-5">
+                      <p className="text-[11px] uppercase tracking-[0.28em] text-[#8891dd]">
+                        Доступ через Discord
+                      </p>
+                      <h2 className="mt-3 font-heading text-2xl font-bold uppercase tracking-[0.08em] text-white">
+                        Участие открывается после входа в {discordGuildName}
+                      </h2>
+                      <p className="mt-3 text-sm leading-6 text-white/60">
+                        {discordConfigured
+                          ? "Подтвердите Discord-аккаунт и членство в нужном сервере. После этого форма участия откроется автоматически."
+                          : "Discord-авторизация еще не настроена на сервере. Сначала добавьте параметры OAuth в окружение приложения."}
+                      </p>
+                      {discordIdentity ? (
+                        <p className="mt-3 text-sm text-white/55">
+                          Текущий Discord: {discordIdentity}
+                        </p>
+                      ) : null}
+                    </div>
+
+                    <div className="flex flex-col gap-3 sm:flex-row">
+                      <Link
+                        href={discordConnectHref}
+                        className="primary-button flex-1 text-center"
+                      >
+                        {currentUser.discordId ? "Обновить Discord" : "Войти через Discord"}
+                      </Link>
+                      {discordInviteUrl ? (
+                        <Link
+                          href={discordInviteUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="ghost-button flex-1 text-center"
+                        >
+                          Открыть сервер
+                        </Link>
+                      ) : null}
+                    </div>
+                  </div>
+                )
               ) : (
                 <div className="space-y-4">
                   <p className="text-sm text-white/60">
-                    Войдите или зарегистрируйтесь, чтобы попасть в список
-                    участников.
+                    Войдите или зарегистрируйтесь, чтобы попасть в список участников.
                   </p>
                   <div className="flex gap-3">
                     <Link
@@ -129,10 +217,7 @@ export default async function EventPage({ params }: EventPageProps) {
                     >
                       Регистрация
                     </Link>
-                    <Link
-                      href="/login"
-                      className="ghost-button flex-1 text-center"
-                    >
+                    <Link href="/login" className="ghost-button flex-1 text-center">
                       Вход
                     </Link>
                   </div>

@@ -28,23 +28,6 @@ export function RegisterForm() {
         ) : null}
       </div>
 
-      <div className="space-y-2">
-        <label className="field-label" htmlFor="email">
-          Почта
-        </label>
-        <input
-          id="email"
-          name="email"
-          type="email"
-          defaultValue={state.values?.email ?? ""}
-          className="field-input"
-          placeholder="operator@endfield.gg"
-        />
-        {state.fieldErrors?.email ? (
-          <p className="field-error">{state.fieldErrors.email[0]}</p>
-        ) : null}
-      </div>
-
       <div className="grid gap-5 md:grid-cols-2">
         <div className="space-y-2">
           <label className="field-label" htmlFor="password">

@@ -37,6 +37,13 @@ model User {
   bio               String             @default("")
   role              UserRole           @default(USER)
   isVerified        Boolean            @default(false)
+  discordId         String?            @unique
+  discordUsername   String?
+  discordGlobalName String?
+  discordGuildNick  String?
+  discordLinkedAt   DateTime?
+  discordMemberAt   DateTime?
+  discordPending    Boolean            @default(false)
   telegramId        String?            @unique
   telegramUsername  String?
   telegramLinkedAt  DateTime?

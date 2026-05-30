@@ -24,15 +24,6 @@ export default function LoginPage() {
               Откройте панель турниров, чтобы управлять событиями, следить за
               сеткой и быстро переходить к активным матчам.
             </p>
-
-            <div className="mt-8 flex flex-wrap gap-3">
-              <div className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-white/58">
-                Endfield Cups
-              </div>
-              <div className="rounded-full border border-[rgba(111,123,255,0.28)] bg-[rgba(111,123,255,0.08)] px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-[#b4bcff]">
-                Tournament Control
-              </div>
-            </div>
           </div>
 
           <div className="rounded-[28px] border border-white/10 bg-[#0c0f17]/88 p-6 shadow-[0_24px_60px_rgba(0,0,0,0.32)] md:p-8">
@@ -40,8 +31,8 @@ export default function LoginPage() {
               Войти
             </h3>
             <p className="mt-2 text-sm text-white/52">
-              Если аккаунт еще не подтвержден, вход сразу отправит вас в
-              Telegram-бота для завершения верификации.
+              Вход работает по нику и паролю. Если аккаунт еще не подтвержден,
+              мы сразу отправим вас в Telegram-бота для завершения верификации.
             </p>
             <div className="mt-6">
               <LoginForm />

@@ -13,19 +13,18 @@ export function LoginForm() {
   return (
     <form action={formAction} className="space-y-5">
       <div className="space-y-2">
-        <label className="field-label" htmlFor="email">
-          Почта
+        <label className="field-label" htmlFor="nickname">
+          Ник
         </label>
         <input
-          id="email"
-          name="email"
-          type="email"
-          defaultValue={state.values?.email ?? ""}
+          id="nickname"
+          name="nickname"
+          defaultValue={state.values?.nickname ?? ""}
           className="field-input"
-          placeholder="operator@endfield.gg"
+          placeholder="Kal'tsit"
         />
-        {state.fieldErrors?.email ? (
-          <p className="field-error">{state.fieldErrors.email[0]}</p>
+        {state.fieldErrors?.nickname ? (
+          <p className="field-error">{state.fieldErrors.nickname[0]}</p>
         ) : null}
       </div>
 

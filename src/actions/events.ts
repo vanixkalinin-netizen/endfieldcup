@@ -6,6 +6,10 @@ import { redirect } from "next/navigation";
 
 import { requireAdmin, requireUser } from "@/lib/auth";
 import { buildBracket, stringifyBracketState } from "@/lib/bracket";
+import {
+  isDiscordAuthConfigured,
+  resolveDiscordApplicationNickname,
+} from "@/lib/discord";
 import { prisma } from "@/lib/prisma";
 import {
   applicationSchema,
@@ -253,7 +257,6 @@ export async function recordMatchWinnerAction(formData: FormData) {
     where: { id: eventId },
     select: {
       id: true,
-      title: true,
       slug: true,
       status: true,
       bracketState: true,
@@ -278,11 +281,7 @@ export async function recordMatchWinnerAction(formData: FormData) {
     },
   });
 
-  if (!event) {
-    return;
-  }
-
-  if (event.status === EventStatus.COMPLETED) {
+  if (!event || event.status === EventStatus.COMPLETED) {
     return;
   }
 
@@ -444,7 +443,6 @@ export async function applyToEventAction(
 
   const payload = {
     eventId: String(formData.get("eventId") ?? ""),
-    discordNickname: String(formData.get("discordNickname") ?? ""),
     note: String(formData.get("note") ?? ""),
   };
 
@@ -455,6 +453,42 @@ export async function applyToEventAction(
       status: "error",
       message: "Не удалось зарегистрироваться в событие.",
       fieldErrors: parsed.error.flatten().fieldErrors,
+      values: payload,
+    };
+  }
+
+  if (!isDiscordAuthConfigured()) {
+    return {
+      status: "error",
+      message:
+        "Discord-авторизация еще не настроена. Проверьте переменные окружения сервера.",
+      values: payload,
+    };
+  }
+
+  if (!user.discordId || !user.discordLinkedAt) {
+    return {
+      status: "error",
+      message:
+        "Сначала авторизуйтесь через Discord, чтобы подтвердить доступ к турнирному серверу.",
+      values: payload,
+    };
+  }
+
+  if (user.discordPending) {
+    return {
+      status: "error",
+      message:
+        "Завершите проверку на Discord-сервере и затем повторите отправку заявки.",
+      values: payload,
+    };
+  }
+
+  if (!user.discordMemberAt) {
+    return {
+      status: "error",
+      message:
+        "Участвовать могут только участники нужного Discord-сервера. Войдите через Discord и повторите попытку.",
       values: payload,
     };
   }
@@ -508,13 +542,15 @@ export async function applyToEventAction(
     };
   }
 
+  const discordNickname = resolveDiscordApplicationNickname(user);
+
   try {
     if (existingApplication) {
       await prisma.eventApplication.update({
         where: { id: existingApplication.id },
         data: {
           status: ApplicationStatus.APPROVED,
-          discordNickname: parsed.data.discordNickname,
+          discordNickname,
           note: parsed.data.note || null,
         },
       });
@@ -524,7 +560,7 @@ export async function applyToEventAction(
           eventId: event.id,
           userId: user.id,
           status: ApplicationStatus.APPROVED,
-          discordNickname: parsed.data.discordNickname,
+          discordNickname,
           note: parsed.data.note || null,
         },
       });
@@ -582,7 +618,6 @@ export async function applyToEventAction(
     message: "Вы добавлены в список участников.",
     values: {
       eventId: parsed.data.eventId,
-      discordNickname: parsed.data.discordNickname,
       note: parsed.data.note ?? "",
     },
   };

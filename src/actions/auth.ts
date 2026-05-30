@@ -8,6 +8,7 @@ import { clearSession, createSession, requireUser } from "@/lib/auth";
 import { hashPassword, verifyPassword } from "@/lib/password";
 import { prisma } from "@/lib/prisma";
 import { issueTelegramVerificationToken } from "@/lib/telegram";
+import { slugify } from "@/lib/utils";
 import {
   type FormState,
   loginSchema,
@@ -16,13 +17,17 @@ import {
   registerSchema,
 } from "@/lib/validators";
 
+function buildInternalEmail(nickname: string) {
+  const base = slugify(nickname) || "player";
+  return `${base}-${crypto.randomUUID().slice(0, 8)}@telegram.local`;
+}
+
 export async function registerAction(
   _prevState: FormState,
   formData: FormData,
 ): Promise<FormState> {
   const payload = {
     nickname: String(formData.get("nickname") ?? ""),
-    email: String(formData.get("email") ?? ""),
     password: String(formData.get("password") ?? ""),
     confirmPassword: String(formData.get("confirmPassword") ?? ""),
   };
@@ -39,23 +44,11 @@ export async function registerAction(
   }
 
   try {
-    const existingByEmail = await prisma.user.findUnique({
-      where: { email: parsed.data.email },
-    });
-
-    const existingByNickname = await prisma.user.findUnique({
+    const existingUser = await prisma.user.findUnique({
       where: { nickname: parsed.data.nickname },
     });
 
-    if (existingByEmail?.isVerified) {
-      return {
-        status: "error",
-        message: "Аккаунт с такой почтой уже существует.",
-        values: payload,
-      };
-    }
-
-    if (existingByNickname && existingByNickname.email !== parsed.data.email) {
+    if (existingUser?.isVerified) {
       return {
         status: "error",
         message: "Такой ник уже занят.",
@@ -65,9 +58,9 @@ export async function registerAction(
 
     const passwordHash = await hashPassword(parsed.data.password);
 
-    const user = existingByEmail
+    const user = existingUser
       ? await prisma.user.update({
-          where: { id: existingByEmail.id },
+          where: { id: existingUser.id },
           data: {
             nickname: parsed.data.nickname,
             passwordHash,
@@ -76,22 +69,22 @@ export async function registerAction(
       : await prisma.user.create({
           data: {
             nickname: parsed.data.nickname,
-            email: parsed.data.email,
+            email: buildInternalEmail(parsed.data.nickname),
             passwordHash,
           },
         });
 
     const verificationToken = await issueTelegramVerificationToken({
       id: user.id,
-      email: parsed.data.email,
-      nickname: parsed.data.nickname,
+      email: user.email,
+      nickname: user.nickname,
     });
 
     return {
       status: "success",
       message: "Аккаунт создан. Подтвердите его через Telegram-бота.",
       values: {
-        email: parsed.data.email,
+        nickname: user.nickname,
       },
       verificationToken,
     };
@@ -112,7 +105,7 @@ export async function loginAction(
   formData: FormData,
 ): Promise<FormState> {
   const payload = {
-    email: String(formData.get("email") ?? ""),
+    nickname: String(formData.get("nickname") ?? ""),
     password: String(formData.get("password") ?? ""),
   };
 
@@ -128,7 +121,7 @@ export async function loginAction(
   }
 
   const user = await prisma.user.findUnique({
-    where: { email: parsed.data.email },
+    where: { nickname: parsed.data.nickname },
   });
 
   if (!user) {
@@ -161,10 +154,9 @@ export async function loginAction(
 
     return {
       status: "error",
-      message:
-        "Подтвердите аккаунт через Telegram-бота перед входом.",
+      message: "Подтвердите аккаунт через Telegram-бота перед входом.",
       values: {
-        email: user.email,
+        nickname: user.nickname,
       },
       verificationToken,
     };
