@@ -18,6 +18,7 @@
   --accent-strong: #e34342;
   --accent-start-rgb: 139, 26, 31;
   --accent-end-rgb: 244, 74, 74;
+  --app-scale: 0.8;
 }
 
 html[data-theme="midnight-signal"] {
@@ -120,7 +121,9 @@ body {
   background: var(--page-bg);
   color: var(--foreground);
   font-family: var(--font-manrope), sans-serif;
+  min-height: calc(100vh / var(--app-scale));
   overflow-x: hidden;
+  zoom: var(--app-scale);
   transition:
     background 240ms ease,
     color 240ms ease;
@@ -343,6 +346,7 @@ textarea {
 .app-root {
   background: var(--page-backdrop);
   isolation: isolate;
+  min-height: calc(100vh / var(--app-scale));
   transition: background 280ms ease;
 }
 

@@ -127,7 +127,7 @@ export default async function RootLayout({
                       Operator access
                     </p>
                     <h1 className="font-heading text-xl font-bold uppercase tracking-[0.14em] text-white md:text-3xl">
-                      Tournament Interface
+                      Endfield Tournament Hub
                     </h1>
                   </div>
 

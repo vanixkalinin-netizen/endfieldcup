@@ -80,29 +80,6 @@ export default async function Home() {
 
   return (
     <div className="space-y-7 lg:max-w-[1020px]">
-      <section className="relative overflow-hidden rounded-[24px] border border-[rgba(255,70,70,0.16)] bg-[linear-gradient(180deg,rgba(11,8,10,0.9),rgba(7,6,7,0.84))] px-6 py-7 shadow-[0_26px_90px_rgba(0,0,0,0.42)] md:px-8 md:py-8">
-        <div className="pointer-events-none absolute inset-y-0 right-0 w-[42%] bg-[radial-gradient(circle_at_center,rgba(190,35,46,0.2),transparent_62%)] blur-2xl" />
-        <div className="relative space-y-5">
-          <div className="space-y-2">
-            <p className="site-kicker text-[11px] uppercase tracking-[0.4em]">
-              Arknights: Endfield
-            </p>
-            <h2 className="font-heading text-4xl font-bold uppercase tracking-[0.08em] text-white md:text-6xl">
-              <span className="block">Endfield</span>
-              <span className="site-accent block">Tournament Hub</span>
-            </h2>
-          </div>
-
-          <div className="h-px w-full max-w-[420px] bg-[linear-gradient(90deg,rgba(211,52,57,0.95),rgba(211,52,57,0.12),transparent)]" />
-
-          <p className="max-w-2xl text-sm leading-7 text-white/58 md:text-base">
-            Главная страница теперь работает как центральный терминал турнира:
-            текущий матч, список событий и быстрый вход в активный раунд собраны
-            в одном потоке слева, как в твоём референсе.
-          </p>
-        </div>
-      </section>
-
       <section className="space-y-4">
         <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
           <div>
