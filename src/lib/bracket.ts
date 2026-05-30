@@ -233,16 +233,17 @@ function resolveWinnerId(
 function resolveAdvanceId(
   participants: [BracketPlayer | null, BracketPlayer | null],
   winnerId: string | null,
+  sources: [BracketSource, BracketSource],
 ) {
   if (winnerId) {
     return winnerId;
   }
 
-  if (participants[0] && !participants[1]) {
+  if (sources[1].type === "bye" && participants[0] && !participants[1]) {
     return participants[0].id;
   }
 
-  if (participants[1] && !participants[0]) {
+  if (sources[0].type === "bye" && participants[1] && !participants[0]) {
     return participants[1].id;
   }
 
@@ -324,7 +325,7 @@ function buildUpperRounds(
       ];
       const matchId = `${roundId}-match-${matchIndex}`;
       const winnerId = resolveWinnerId(participants, state.winners[matchId]);
-      const advanceId = resolveAdvanceId(participants, winnerId);
+      const advanceId = resolveAdvanceId(participants, winnerId, sources);
       const loserId = resolveLoserId(participants, advanceId);
 
       if (winnerId) {
@@ -373,7 +374,7 @@ function buildUpperRounds(
 
   rounds.forEach((round, index) => {
     const label = getUpperRoundLabel(
-      round.matches.filter((match) => match.participants.some(Boolean)).length,
+      round.matches.length,
       index,
       rounds.length,
     );
@@ -422,7 +423,7 @@ function buildLowerRounds(
       ];
       const matchId = `${roundId}-match-${matchIndex}`;
       const winnerId = resolveWinnerId(participants, state.winners[matchId]);
-      const advanceId = resolveAdvanceId(participants, winnerId);
+      const advanceId = resolveAdvanceId(participants, winnerId, sources);
       const loserId = resolveLoserId(participants, advanceId);
 
       if (winnerId) {
@@ -548,7 +549,7 @@ function buildPlacementRounds(
       ),
     ];
     const winnerId = resolveWinnerId(participants, state.winners[definition.id]);
-    const advanceId = resolveAdvanceId(participants, winnerId);
+    const advanceId = resolveAdvanceId(participants, winnerId, definition.sources);
     const loserId = resolveLoserId(participants, advanceId);
 
     if (winnerId) {
