@@ -88,23 +88,6 @@ export default async function Home() {
             </p>
             <h3 className="section-title mt-2">Текущий матч</h3>
           </div>
-
-          <span
-            className={cn(
-              "inline-flex w-fit items-center gap-2 rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.24em]",
-              liveMatch
-                ? "border-[#d43c43]/32 bg-[#d43c43]/12 text-[#ffd7d7]"
-                : "border-white/10 bg-white/[0.04] text-white/46",
-            )}
-          >
-            <span
-              className={cn(
-                "status-dot h-2 w-2 rounded-full",
-                liveMatch ? "bg-[#ff5c60]" : "bg-white/24",
-              )}
-            />
-            {liveMatch ? "Идет сейчас" : "Ожидание"}
-          </span>
         </div>
 
         {liveMatch ? (
@@ -113,14 +96,10 @@ export default async function Home() {
             <div className="pointer-events-none absolute right-[-4rem] top-[-3rem] h-36 w-36 rounded-full bg-[#bf2731]/20 blur-3xl" />
 
             <div className="relative space-y-5">
-              <div className="flex flex-wrap items-center gap-3">
-                <span className="inline-flex items-center gap-2 rounded-full border border-[#d43c43]/32 bg-[#d43c43]/14 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.24em] text-[#ffd7d7]">
-                  <span className="status-dot h-2 w-2 rounded-full bg-[#ff5c60]" />
-                  Идет сейчас
-                </span>
-                <span className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.24em] text-white/54">
-                  {liveMatch.match.label}
-                </span>
+                <div className="flex flex-wrap items-center gap-3">
+                  <span className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.24em] text-white/54">
+                    {liveMatch.match.label}
+                  </span>
                 <span className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.24em] text-white/54">
                   Регион {liveMatch.event.location || "Онлайн"}
                 </span>
@@ -132,75 +111,103 @@ export default async function Home() {
                 </p>
               </div>
 
-              <div className="relative overflow-hidden rounded-[24px] border border-[rgba(255,70,70,0.16)] bg-[linear-gradient(180deg,rgba(8,7,8,0.98),rgba(11,7,9,0.94))] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] md:p-5">
-                <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,75,75,0.06),transparent_34%),linear-gradient(90deg,rgba(120,18,24,0.14),transparent_18%,transparent_82%,rgba(120,18,24,0.14))]" />
-                <div className="pointer-events-none absolute inset-x-4 bottom-3 h-px bg-[linear-gradient(90deg,transparent,rgba(211,52,57,0.65),transparent)]" />
-                <div className="pointer-events-none absolute left-[calc(50%-70px)] top-1/2 h-28 w-36 -translate-y-1/2 bg-[radial-gradient(circle,rgba(188,36,44,0.16),transparent_70%)] blur-2xl" />
+              <div className="relative overflow-hidden rounded-[24px] border border-[rgba(255,70,70,0.16)] bg-[linear-gradient(180deg,rgba(8,7,8,0.99),rgba(10,7,9,0.95))] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] md:p-5">
+                <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,70,70,0.05),transparent_30%),linear-gradient(90deg,rgba(120,18,24,0.08),transparent_18%,transparent_82%,rgba(120,18,24,0.08))]" />
+                <div className="pointer-events-none absolute inset-x-4 top-0 h-px bg-[linear-gradient(90deg,transparent,rgba(211,52,57,0.55),transparent)]" />
+                <div className="pointer-events-none absolute inset-x-6 bottom-3 h-px bg-[linear-gradient(90deg,transparent,rgba(211,52,57,0.55),transparent)]" />
+                <div className="pointer-events-none absolute left-1/2 top-1/2 h-28 w-40 -translate-x-1/2 -translate-y-1/2 bg-[radial-gradient(circle,rgba(188,36,44,0.14),transparent_72%)] blur-2xl" />
 
-                <div className="relative grid gap-4 xl:grid-cols-[minmax(0,1fr)_110px_minmax(0,1fr)_240px] xl:items-center">
-                  {liveMatch.match.participants.map((participant, index) => {
-                    const isCurrentUserCard =
+                <div className="relative flex flex-col gap-3 sm:grid sm:grid-cols-[1.18fr_110px_0.82fr_210px] sm:items-center sm:gap-3">
+                  {(() => {
+                    const firstParticipant = liveMatch.match.participants[0];
+                    const secondParticipant = liveMatch.match.participants[1];
+                    const firstIsCurrentUser =
                       liveMatch.isCurrentUserPlaying &&
-                      participant.id === currentUser?.id;
+                      firstParticipant.id === currentUser?.id;
+                    const secondIsCurrentUser =
+                      liveMatch.isCurrentUserPlaying &&
+                      secondParticipant.id === currentUser?.id;
 
                     return (
-                      <div
-                        key={participant.id}
-                        className={cn(
-                          "rounded-[18px] border px-4 py-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]",
-                          isCurrentUserCard
-                            ? "border-[#d43c43]/34 bg-[linear-gradient(180deg,rgba(75,20,24,0.92),rgba(43,12,15,0.92))]"
-                            : "border-white/8 bg-[linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0.015))]",
-                        )}
-                      >
-                        <div className="flex items-center gap-3">
-                          <AvatarBadge
-                            nickname={participant.nickname}
-                            size="sm"
-                            className="h-12 w-12 shrink-0 border-white/10 text-sm shadow-[0_16px_30px_rgba(0,0,0,0.35)]"
-                          />
+                      <>
+                        <div
+                          className={cn(
+                            "min-w-0 rounded-[18px] border px-4 py-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]",
+                            firstIsCurrentUser
+                              ? "border-[#d43c43]/42 bg-[linear-gradient(180deg,rgba(92,25,29,0.94),rgba(55,14,18,0.94))]"
+                              : "border-white/8 bg-[linear-gradient(180deg,rgba(255,255,255,0.025),rgba(255,255,255,0.012))]",
+                          )}
+                        >
+                          <div className="flex items-center gap-3">
+                            <AvatarBadge
+                              nickname={firstParticipant.nickname}
+                              size="sm"
+                              className="h-11 w-11 shrink-0 border-white/10 text-[13px] shadow-[0_16px_30px_rgba(0,0,0,0.35)]"
+                            />
 
-                          <div className="min-w-0">
-                            <p className="text-[10px] uppercase tracking-[0.28em] text-white/28">
-                              Игрок {index + 1}
-                            </p>
-                            <p className="mt-1 truncate font-heading text-2xl font-bold uppercase tracking-[0.06em] text-white">
-                              {participant.nickname}
-                            </p>
-                            {isCurrentUserCard ? (
-                              <span className="mt-2 inline-flex rounded-full border border-[#ff8d90]/24 bg-[#d43c43]/14 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#ffd1d2]">
-                                Это вы
-                              </span>
-                            ) : (
-                              <div className="mt-2 space-y-1 text-[10px] uppercase tracking-[0.22em] text-white/26">
-                                <p>Рейтинг: --</p>
-                                <p>Победы: --</p>
-                              </div>
-                            )}
+                            <div className="min-w-0">
+                              <p className="text-[10px] uppercase tracking-[0.3em] text-white/28">
+                                Игрок 1
+                              </p>
+                              <p className="mt-1 truncate font-heading text-[1.05rem] font-bold uppercase tracking-[0.06em] text-white sm:text-[1.18rem]">
+                                {firstParticipant.nickname}
+                              </p>
+                            </div>
                           </div>
                         </div>
-                      </div>
+
+                        <div className="flex items-center justify-center py-1 sm:py-0">
+                          <div className="relative flex h-[84px] w-[84px] items-center justify-center rounded-full border border-[#d43c43]/24 bg-[radial-gradient(circle,rgba(212,60,67,0.08),rgba(11,7,9,0.16))]">
+                            <div className="absolute left-[-12px] top-1/2 h-px w-4 -translate-y-1/2 bg-[#d43c43]/44" />
+                            <div className="absolute right-[-12px] top-1/2 h-px w-4 -translate-y-1/2 bg-[#d43c43]/44" />
+                            <span className="font-heading text-[2.15rem] font-bold uppercase tracking-[0.1em] text-[#ff666a]">
+                              VS
+                            </span>
+                          </div>
+                        </div>
+
+                        <div
+                          className={cn(
+                            "min-w-0 rounded-[18px] border px-4 py-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] sm:max-w-[176px]",
+                            secondIsCurrentUser
+                              ? "border-[#d43c43]/42 bg-[linear-gradient(180deg,rgba(92,25,29,0.94),rgba(55,14,18,0.94))]"
+                              : "border-white/8 bg-[linear-gradient(180deg,rgba(255,255,255,0.025),rgba(255,255,255,0.012))]",
+                          )}
+                        >
+                          <div className="flex items-center gap-3">
+                            <AvatarBadge
+                              nickname={secondParticipant.nickname}
+                              size="sm"
+                              className="h-11 w-11 shrink-0 border-white/10 text-[13px] shadow-[0_16px_30px_rgba(0,0,0,0.35)]"
+                            />
+
+                            <div className="min-w-0">
+                              <p className="text-[10px] uppercase tracking-[0.3em] text-white/28">
+                                Игрок 2
+                              </p>
+                              <p className="mt-1 truncate font-heading text-[1.05rem] font-bold uppercase tracking-[0.06em] text-white sm:text-[1.18rem]">
+                                {secondParticipant.nickname}
+                              </p>
+                              {secondIsCurrentUser ? (
+                                <span className="mt-2 inline-flex rounded-full border border-[#ff8d90]/26 bg-[#d43c43]/14 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#ffd1d2]">
+                                  Это вы
+                                </span>
+                              ) : null}
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="flex sm:self-end sm:pb-1 sm:justify-start">
+                          <Link
+                            href={`/events/${liveMatch.event.slug}`}
+                            className="primary-button inline-flex min-h-[70px] w-full items-center justify-center text-center leading-6 sm:min-h-[74px] sm:w-[190px]"
+                          >
+                            Открыть текущий матч
+                          </Link>
+                        </div>
+                      </>
                     );
-                  })}
-
-                  <div className="flex items-center justify-center">
-                    <div className="relative flex h-[88px] w-[88px] items-center justify-center rounded-full border border-[#d43c43]/24 bg-[radial-gradient(circle,rgba(212,60,67,0.12),rgba(11,7,9,0.3))] shadow-[0_0_30px_rgba(190,39,49,0.16)]">
-                      <div className="absolute left-[-14px] top-1/2 h-px w-4 -translate-y-1/2 bg-[#d43c43]/52" />
-                      <div className="absolute right-[-14px] top-1/2 h-px w-4 -translate-y-1/2 bg-[#d43c43]/52" />
-                      <span className="font-heading text-4xl font-bold uppercase tracking-[0.12em] text-[#ff6266]">
-                        VS
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="flex xl:justify-end">
-                    <Link
-                      href={`/events/${liveMatch.event.slug}`}
-                      className="primary-button inline-flex w-full items-center justify-center xl:w-auto"
-                    >
-                      Открыть текущий матч
-                    </Link>
-                  </div>
+                  })()}
                 </div>
               </div>
             </div>
