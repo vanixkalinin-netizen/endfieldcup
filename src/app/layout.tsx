@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Manrope, Oxanium } from "next/font/google";
 
+import { LiveRouteRefresh } from "@/components/live-route-refresh";
 import { AvatarBadge } from "@/components/avatar-badge";
 import { NotificationBell } from "@/components/notification-bell";
 import { SidebarNav } from "@/components/sidebar-nav";
@@ -76,6 +77,7 @@ export default async function RootLayout({
     >
       <body className="min-h-full text-white">
         <div className="app-root relative min-h-screen overflow-hidden">
+          <LiveRouteRefresh />
           <div className="relative mx-auto grid min-h-screen max-w-[1600px] gap-5 px-3 py-3 lg:grid-cols-[260px_minmax(0,1fr)] lg:px-5 lg:py-5">
             <aside className="app-sidebar flex flex-col rounded-[30px] border p-5 shadow-[0_30px_80px_rgba(0,0,0,0.4)] backdrop-blur">
               <div className="space-y-10">
