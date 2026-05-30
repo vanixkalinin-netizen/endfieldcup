@@ -20,6 +20,66 @@ type NotificationBellProps = {
   unreadCount: number;
 };
 
+const unreadCountStorageKey = "endfield:last-unread-count";
+
+function playNotificationSound() {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  const AudioContextClass =
+    window.AudioContext ||
+    (window as typeof window & { webkitAudioContext?: typeof AudioContext })
+      .webkitAudioContext;
+
+  if (!AudioContextClass) {
+    return;
+  }
+
+  const audioContext = new AudioContextClass();
+  const now = audioContext.currentTime;
+
+  const masterGain = audioContext.createGain();
+  masterGain.gain.setValueAtTime(0.0001, now);
+  masterGain.gain.exponentialRampToValueAtTime(0.08, now + 0.03);
+  masterGain.gain.exponentialRampToValueAtTime(0.0001, now + 1.1);
+  masterGain.connect(audioContext.destination);
+
+  const oscillatorOne = audioContext.createOscillator();
+  oscillatorOne.type = "triangle";
+  oscillatorOne.frequency.setValueAtTime(880, now);
+
+  const gainOne = audioContext.createGain();
+  gainOne.gain.setValueAtTime(0.0001, now);
+  gainOne.gain.exponentialRampToValueAtTime(0.2, now + 0.02);
+  gainOne.gain.exponentialRampToValueAtTime(0.0001, now + 0.42);
+  oscillatorOne.connect(gainOne);
+  gainOne.connect(masterGain);
+  oscillatorOne.start(now);
+  oscillatorOne.stop(now + 0.45);
+
+  const oscillatorTwo = audioContext.createOscillator();
+  oscillatorTwo.type = "sine";
+  oscillatorTwo.frequency.setValueAtTime(1318.51, now + 0.14);
+
+  const gainTwo = audioContext.createGain();
+  gainTwo.gain.setValueAtTime(0.0001, now + 0.12);
+  gainTwo.gain.exponentialRampToValueAtTime(0.16, now + 0.2);
+  gainTwo.gain.exponentialRampToValueAtTime(0.0001, now + 0.78);
+  oscillatorTwo.connect(gainTwo);
+  gainTwo.connect(masterGain);
+  oscillatorTwo.start(now + 0.12);
+  oscillatorTwo.stop(now + 0.82);
+
+  const cleanup = () => {
+    void audioContext.close().catch(() => {
+      // Ignore close timing issues from browsers.
+    });
+  };
+
+  oscillatorTwo.onended = cleanup;
+}
+
 export function NotificationBell({
   notifications,
   unreadCount,
@@ -44,6 +104,26 @@ export function NotificationBell({
       document.removeEventListener("pointerdown", handlePointerDown);
     };
   }, [isOpen]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const lastUnreadRaw = window.localStorage.getItem(unreadCountStorageKey);
+    const lastUnreadCount = lastUnreadRaw ? Number(lastUnreadRaw) : null;
+
+    if (lastUnreadCount === null || Number.isNaN(lastUnreadCount)) {
+      window.localStorage.setItem(unreadCountStorageKey, String(unreadCount));
+      return;
+    }
+
+    if (unreadCount > lastUnreadCount) {
+      playNotificationSound();
+    }
+
+    window.localStorage.setItem(unreadCountStorageKey, String(unreadCount));
+  }, [unreadCount]);
 
   return (
     <div ref={containerRef} className="relative">
@@ -82,9 +162,7 @@ export function NotificationBell({
                 Уведомления
               </p>
               <p className="mt-1 text-sm text-white/58">
-                {unreadCount
-                  ? `Новых: ${unreadCount}`
-                  : "Новых уведомлений нет"}
+                {unreadCount ? `Новых: ${unreadCount}` : "Новых уведомлений нет"}
               </p>
             </div>
 
