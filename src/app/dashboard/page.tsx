@@ -4,11 +4,14 @@ import { ApplicationStatus } from "@prisma/client";
 
 import { StatusPill } from "@/components/status-pill";
 import { requireUser } from "@/lib/auth";
+import { isDiscordVerified, resolveDiscordIdentityLabel } from "@/lib/discord";
 import { prisma } from "@/lib/prisma";
 import { formatDateTime } from "@/lib/utils";
 
 export default async function DashboardPage() {
   const user = await requireUser();
+  const discordReady = isDiscordVerified(user);
+  const discordIdentity = resolveDiscordIdentityLabel(user);
   const applications = await prisma.eventApplication.findMany({
     where: { userId: user.id },
     orderBy: { createdAt: "desc" },
@@ -33,9 +36,18 @@ export default async function DashboardPage() {
             Статус аккаунта
           </p>
           <p className="site-accent mt-4 font-heading text-2xl font-bold uppercase tracking-[0.08em]">
-            Подтвержден
+            {discordReady
+              ? "Подтвержден"
+              : user.discordPending
+                ? "Ожидает"
+                : user.discordId
+                  ? "Нужен сервер"
+                  : "Discord не подключен"}
           </p>
           <p className="mt-3">
+            {discordIdentity
+              ? `Текущий Discord: ${discordIdentity}.`
+              : "Выполните вход через Discord, чтобы подтвердить аккаунт."}{" "}
             Здесь лежат все ваши участия. Открывайте нужное событие, чтобы
             посмотреть сетку и актуальный статус.
           </p>

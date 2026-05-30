@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Manrope, Oxanium } from "next/font/google";
 
-import { LiveRouteRefresh } from "@/components/live-route-refresh";
 import { AvatarBadge } from "@/components/avatar-badge";
+import { LiveRouteRefresh } from "@/components/live-route-refresh";
 import { NotificationBell } from "@/components/notification-bell";
 import { SidebarNav } from "@/components/sidebar-nav";
 import { ThemeSwitcher } from "@/components/theme-switcher";
@@ -25,7 +25,7 @@ const oxanium = Oxanium({
 export const metadata: Metadata = {
   title: "Endfield Cups",
   description:
-    "Турнирный сайт по Arknights: Endfield с регистрацией, заявками и отдельной админ-панелью.",
+    "Турнирный сайт по Arknights: Endfield с Discord-авторизацией, заявками и отдельной админ-панелью.",
 };
 
 export default async function RootLayout({
@@ -37,38 +37,39 @@ export default async function RootLayout({
   const notificationDelegate = (
     prisma as { notification?: typeof prisma.notification }
   ).notification;
-  const [notifications, unreadCount] = currentUser && notificationDelegate
-    ? await Promise.all([
-        notificationDelegate.findMany({
-          where: {
-            userId: currentUser.id,
-          },
-          orderBy: [
-            {
-              isRead: "asc",
+  const [notifications, unreadCount] =
+    currentUser && notificationDelegate
+      ? await Promise.all([
+          notificationDelegate.findMany({
+            where: {
+              userId: currentUser.id,
             },
-            {
-              createdAt: "desc",
+            orderBy: [
+              {
+                isRead: "asc",
+              },
+              {
+                createdAt: "desc",
+              },
+            ],
+            take: 8,
+            select: {
+              id: true,
+              title: true,
+              message: true,
+              href: true,
+              isRead: true,
+              createdAt: true,
             },
-          ],
-          take: 8,
-          select: {
-            id: true,
-            title: true,
-            message: true,
-            href: true,
-            isRead: true,
-            createdAt: true,
-          },
-        }),
-        notificationDelegate.count({
-          where: {
-            userId: currentUser.id,
-            isRead: false,
-          },
-        }),
-      ])
-    : [[], 0];
+          }),
+          notificationDelegate.count({
+            where: {
+              userId: currentUser.id,
+              isRead: false,
+            },
+          }),
+        ])
+      : [[], 0];
 
   return (
     <html
@@ -151,14 +152,9 @@ export default async function RootLayout({
                         </Link>
                       </>
                     ) : (
-                      <>
-                        <Link href="/login" className="ghost-button">
-                          Вход
-                        </Link>
-                        <Link href="/register" className="primary-button">
-                          Регистрация
-                        </Link>
-                      </>
+                      <Link href="/login" className="primary-button">
+                        Войти через Discord
+                      </Link>
                     )}
                   </div>
                 </header>

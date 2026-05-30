@@ -83,6 +83,34 @@ export function getDiscordAppOrigin() {
   }
 }
 
+export function buildDiscordInternalEmail(discordId: string) {
+  return `discord-${discordId}@discord.local`;
+}
+
+function normalizeDiscordName(value: string | null | undefined, maxLength = 24) {
+  return value?.replace(/\s+/g, " ").trim().slice(0, maxLength) ?? "";
+}
+
+export function getPreferredDiscordNickname(input: {
+  guildNick?: string | null;
+  globalName?: string | null;
+  username: string;
+  fallbackId?: string;
+}) {
+  const preferred =
+    normalizeDiscordName(input.guildNick) ||
+    normalizeDiscordName(input.globalName) ||
+    normalizeDiscordName(input.username);
+
+  if (preferred.length >= 3) {
+    return preferred;
+  }
+
+  return normalizeDiscordName(
+    `Player-${input.fallbackId?.slice(-4) || "0000"}`,
+  );
+}
+
 export function sanitizeDiscordNextPath(
   nextPath: string | null | undefined,
   fallback: string,
@@ -219,6 +247,20 @@ export function resolveDiscordIdentityLabel(
     user.discordGlobalName?.trim() ||
     user.discordUsername?.trim() ||
     null
+  );
+}
+
+export function isDiscordVerified(
+  user:
+    | Pick<User, "discordId" | "discordLinkedAt" | "discordMemberAt" | "discordPending">
+    | null
+    | undefined,
+) {
+  return Boolean(
+    user?.discordId &&
+      user.discordLinkedAt &&
+      user.discordMemberAt &&
+      !user.discordPending,
   );
 }
 

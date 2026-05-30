@@ -1,145 +1,37 @@
 "use server";
 
-import { UserRole } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
-import { clearSession, createSession, requireUser } from "@/lib/auth";
-import { hashPassword, verifyPassword } from "@/lib/password";
+import { clearSession, requireUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { slugify } from "@/lib/utils";
 import {
   type FormState,
-  loginSchema,
-  passwordChangeSchema,
   profileSchema,
-  registerSchema,
 } from "@/lib/validators";
-
-function buildInternalEmail(nickname: string) {
-  const base = slugify(nickname) || "player";
-  return `${base}-${crypto.randomUUID().slice(0, 8)}@player.local`;
-}
 
 export async function registerAction(
   _prevState: FormState,
-  formData: FormData,
+  _formData: FormData,
 ): Promise<FormState> {
-  const payload = {
-    nickname: String(formData.get("nickname") ?? ""),
-    password: String(formData.get("password") ?? ""),
-    confirmPassword: String(formData.get("confirmPassword") ?? ""),
+  void _prevState;
+  void _formData;
+  return {
+    status: "error",
+    message: "Регистрация теперь работает только через Discord.",
   };
-
-  const parsed = registerSchema.safeParse(payload);
-
-  if (!parsed.success) {
-    return {
-      status: "error",
-      message: "Проверьте поля формы.",
-      fieldErrors: parsed.error.flatten().fieldErrors,
-      values: payload,
-    };
-  }
-
-  try {
-    const existingUser = await prisma.user.findUnique({
-      where: { nickname: parsed.data.nickname },
-      select: { id: true },
-    });
-
-    if (existingUser) {
-      return {
-        status: "error",
-        message: "Такой ник уже занят.",
-        values: payload,
-      };
-    }
-
-    const passwordHash = await hashPassword(parsed.data.password);
-
-    await prisma.user.create({
-      data: {
-        nickname: parsed.data.nickname,
-        email: buildInternalEmail(parsed.data.nickname),
-        passwordHash,
-      },
-    });
-
-    return {
-      status: "success",
-      message:
-        "Аккаунт создан. Теперь войдите и подключите Discord, чтобы участвовать в турнирах.",
-      values: {
-        nickname: parsed.data.nickname,
-      },
-    };
-  } catch (error) {
-    console.error("[registerAction] Unexpected error", error);
-
-    return {
-      status: "error",
-      message:
-        "Во время регистрации произошла ошибка. Попробуйте еще раз чуть позже.",
-      values: payload,
-    };
-  }
 }
 
 export async function loginAction(
   _prevState: FormState,
-  formData: FormData,
+  _formData: FormData,
 ): Promise<FormState> {
-  const payload = {
-    nickname: String(formData.get("nickname") ?? ""),
-    password: String(formData.get("password") ?? ""),
+  void _prevState;
+  void _formData;
+  return {
+    status: "error",
+    message: "Вход теперь работает только через Discord.",
   };
-
-  const parsed = loginSchema.safeParse(payload);
-
-  if (!parsed.success) {
-    return {
-      status: "error",
-      message: "Проверьте данные для входа.",
-      fieldErrors: parsed.error.flatten().fieldErrors,
-      values: payload,
-    };
-  }
-
-  const user = await prisma.user.findUnique({
-    where: { nickname: parsed.data.nickname },
-  });
-
-  if (!user) {
-    return {
-      status: "error",
-      message: "Пользователь не найден.",
-      values: payload,
-    };
-  }
-
-  const isValidPassword = await verifyPassword(
-    parsed.data.password,
-    user.passwordHash,
-  );
-
-  if (!isValidPassword) {
-    return {
-      status: "error",
-      message: "Неверный пароль.",
-      values: payload,
-    };
-  }
-
-  await createSession({
-    id: user.id,
-    email: user.email,
-    nickname: user.nickname,
-    role: user.role,
-  });
-
-  revalidatePath("/");
-  redirect(user.role === UserRole.ADMIN ? "/acp" : "/dashboard");
 }
 
 export async function updateProfileAction(
@@ -182,50 +74,13 @@ export async function updateProfileAction(
 
 export async function changePasswordAction(
   _prevState: FormState,
-  formData: FormData,
+  _formData: FormData,
 ): Promise<FormState> {
-  const user = await requireUser();
-
-  const payload = {
-    currentPassword: String(formData.get("currentPassword") ?? ""),
-    newPassword: String(formData.get("newPassword") ?? ""),
-    confirmNewPassword: String(formData.get("confirmNewPassword") ?? ""),
-  };
-
-  const parsed = passwordChangeSchema.safeParse(payload);
-
-  if (!parsed.success) {
-    return {
-      status: "error",
-      message: "Проверьте данные для смены пароля.",
-      fieldErrors: parsed.error.flatten().fieldErrors,
-    };
-  }
-
-  const matchesCurrentPassword = await verifyPassword(
-    parsed.data.currentPassword,
-    user.passwordHash,
-  );
-
-  if (!matchesCurrentPassword) {
-    return {
-      status: "error",
-      message: "Текущий пароль введен неверно.",
-    };
-  }
-
-  const passwordHash = await hashPassword(parsed.data.newPassword);
-
-  await prisma.user.update({
-    where: { id: user.id },
-    data: {
-      passwordHash,
-    },
-  });
-
+  void _prevState;
+  void _formData;
   return {
-    status: "success",
-    message: "Пароль успешно обновлен.",
+    status: "error",
+    message: "Смена пароля отключена: вход теперь работает только через Discord.",
   };
 }
 

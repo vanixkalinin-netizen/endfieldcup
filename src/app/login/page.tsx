@@ -1,8 +1,32 @@
 import Link from "next/link";
 
-import { LoginForm } from "@/components/forms/login-form";
+import {
+  getDiscordFeedback,
+  getDiscordFeedbackClasses,
+  getDiscordGuildInviteUrl,
+  isDiscordAuthConfigured,
+  sanitizeDiscordNextPath,
+} from "@/lib/discord";
 
-export default function LoginPage() {
+type LoginPageProps = {
+  searchParams: Promise<{
+    discord?: string | string[];
+    next?: string | string[];
+  }>;
+};
+
+function takeFirst(value: string | string[] | undefined) {
+  return Array.isArray(value) ? value[0] : value;
+}
+
+export default async function LoginPage({ searchParams }: LoginPageProps) {
+  const query = await searchParams;
+  const nextPath = sanitizeDiscordNextPath(takeFirst(query.next), "/profile");
+  const feedback = getDiscordFeedback(takeFirst(query.discord));
+  const discordConfigured = isDiscordAuthConfigured();
+  const discordInviteUrl = getDiscordGuildInviteUrl();
+  const discordConnectHref = `/api/discord/connect?next=${encodeURIComponent(nextPath)}`;
+
   return (
     <div className="mx-auto w-full max-w-6xl">
       <section className="panel relative overflow-hidden px-6 py-8 md:px-10 md:py-10 xl:px-14 xl:py-12">
@@ -18,34 +42,48 @@ export default function LoginPage() {
               Operator access
             </p>
             <h2 className="mt-5 font-heading text-4xl font-bold uppercase tracking-[0.08em] text-white md:text-5xl xl:text-6xl">
-              Вход
+              Вход через Discord
             </h2>
-            <p className="mt-5 max-w-2xl text-base leading-8 text-white/56 md:text-lg">
-              Откройте панель турниров, чтобы управлять событиями, следить за
-              сеткой и быстро переходить к активным матчам.
-            </p>
           </div>
 
           <div className="rounded-[28px] border border-white/10 bg-[#0c0f17]/88 p-6 shadow-[0_24px_60px_rgba(0,0,0,0.32)] md:p-8">
             <h3 className="font-heading text-2xl font-bold uppercase tracking-[0.08em] text-white">
-              Войти
+              Discord OAuth
             </h3>
             <p className="mt-2 text-sm text-white/52">
-              Вход работает по нику и паролю. После входа подключите Discord в
-              профиле, чтобы открыть участие в турнирах.
+              Нажмите кнопку ниже, чтобы войти через Discord, автоматически
+              создать профиль и подтвердить доступ через нужный сервер.
             </p>
-            <div className="mt-6">
-              <LoginForm />
-            </div>
-            <p className="mt-5 text-sm text-white/48">
-              Нет аккаунта?{" "}
-              <Link
-                href="/register"
-                className="text-[#ff8d90] transition-colors hover:text-white"
-              >
-                Зарегистрироваться
+
+            {feedback ? (
+              <div className={`mt-6 ${getDiscordFeedbackClasses(feedback.tone)}`}>
+                {feedback.message}
+              </div>
+            ) : null}
+
+            <div className="mt-6 flex flex-col gap-3">
+              <Link href={discordConnectHref} className="primary-button text-center">
+                Войти через Discord
               </Link>
-            </p>
+              {discordInviteUrl ? (
+                <Link
+                  href={discordInviteUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="ghost-button text-center"
+                >
+                  Открыть Discord сервер
+                </Link>
+              ) : null}
+            </div>
+
+            {!discordConfigured ? (
+              <div className="mt-6 rounded-[18px] border border-[#7d2631]/28 bg-[#7d2631]/16 p-4 text-sm text-[#ffccd5]">
+                Discord-авторизация еще не настроена. Заполните
+                `DISCORD_CLIENT_ID`, `DISCORD_CLIENT_SECRET`,
+                `DISCORD_REDIRECT_URI` и `DISCORD_GUILD_ID`.
+              </div>
+            ) : null}
           </div>
         </div>
       </section>

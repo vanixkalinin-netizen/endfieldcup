@@ -1,6 +1,7 @@
-import { ApplicationStatus, EventStatus, UserRole } from "@prisma/client";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+
+import { ApplicationStatus, EventStatus, UserRole } from "@prisma/client";
 
 import { EventBracket } from "@/components/event-bracket";
 import { ApplyForm } from "@/components/forms/apply-form";
@@ -12,6 +13,7 @@ import {
   getDiscordGuildInviteUrl,
   getDiscordGuildName,
   isDiscordAuthConfigured,
+  isDiscordVerified,
   resolveDiscordApplicationNickname,
   resolveDiscordIdentityLabel,
 } from "@/lib/discord";
@@ -86,13 +88,7 @@ export default async function EventPage({
   const discordIdentity = currentUser
     ? resolveDiscordIdentityLabel(currentUser)
     : null;
-  const isDiscordReady = Boolean(
-    isAdminViewer ||
-      (currentUser?.discordId &&
-        currentUser.discordLinkedAt &&
-        currentUser.discordMemberAt &&
-        !currentUser.discordPending),
-  );
+  const isDiscordReady = Boolean(isAdminViewer || isDiscordVerified(currentUser));
   const discordConnectHref = `/api/discord/connect?next=${encodeURIComponent(
     `/events/${event.slug}`,
   )}`;
@@ -173,7 +169,7 @@ export default async function EventPage({
                         Доступ через Discord
                       </p>
                       <h2 className="mt-3 font-heading text-2xl font-bold uppercase tracking-[0.08em] text-white">
-                        Участие открывается после входа в {discordGuildName}
+                        Участие откроется после входа в {discordGuildName}
                       </h2>
                       <p className="mt-3 text-sm leading-6 text-white/60">
                         {discordConfigured
@@ -210,18 +206,26 @@ export default async function EventPage({
               ) : (
                 <div className="space-y-4">
                   <p className="text-sm text-white/60">
-                    Войдите или зарегистрируйтесь, чтобы попасть в список участников.
+                    Вход и создание аккаунта теперь работают только через Discord.
+                    После OAuth сайт сразу проверит, есть ли вы на нужном сервере.
                   </p>
-                  <div className="flex gap-3">
+                  <div className="flex flex-col gap-3">
                     <Link
-                      href="/register"
-                      className="primary-button flex-1 text-center"
+                      href={discordConnectHref}
+                      className="primary-button text-center"
                     >
-                      Регистрация
+                      Войти через Discord
                     </Link>
-                    <Link href="/login" className="ghost-button flex-1 text-center">
-                      Вход
-                    </Link>
+                    {discordInviteUrl ? (
+                      <Link
+                        href={discordInviteUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="ghost-button text-center"
+                      >
+                        Открыть Discord сервер
+                      </Link>
+                    ) : null}
                   </div>
                 </div>
               )

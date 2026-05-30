@@ -16,20 +16,14 @@ export async function GET(request: Request) {
   const requestUrl = new URL(request.url);
   const nextPath = sanitizeDiscordNextPath(
     requestUrl.searchParams.get("next"),
-    "/profile",
+    user ? "/profile" : "/login",
   );
   const baseOrigin = getDiscordAppOrigin();
 
-  if (!user) {
-    return NextResponse.redirect(
-      baseOrigin ? new URL("/login", `${baseOrigin}/`) : new URL("/login", request.url),
-    );
-  }
-
   if (!isDiscordAuthConfigured()) {
     const errorUrl = baseOrigin
-      ? new URL(nextPath, `${baseOrigin}/`)
-      : new URL(nextPath, request.url);
+      ? new URL(user ? nextPath : "/login", `${baseOrigin}/`)
+      : new URL(user ? nextPath : "/login", request.url);
     errorUrl.searchParams.set("discord", "config");
     return NextResponse.redirect(errorUrl);
   }
@@ -42,6 +36,8 @@ export async function GET(request: Request) {
     JSON.stringify({
       state,
       nextPath,
+      mode: user ? "link" : "login",
+      userId: user?.id ?? null,
     }),
     {
       httpOnly: true,

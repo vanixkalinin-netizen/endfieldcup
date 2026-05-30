@@ -2,28 +2,48 @@ import "dotenv/config";
 
 import { UserRole } from "@prisma/client";
 
-import { hashPassword } from "../src/lib/password";
+import { buildDiscordInternalEmail } from "../src/lib/discord";
 import { prisma } from "../src/lib/prisma";
 
 async function main() {
-  const adminEmail = process.env.SEED_ADMIN_EMAIL || "admin@endfield.local";
-  const adminPassword = process.env.SEED_ADMIN_PASSWORD || "Admin123!";
+  const adminDiscordId = process.env.SEED_ADMIN_DISCORD_ID?.trim() || null;
+  const adminEmail = (
+    process.env.SEED_ADMIN_EMAIL ||
+    (adminDiscordId
+      ? buildDiscordInternalEmail(adminDiscordId)
+      : "admin@endfield.local")
+  ).toLowerCase();
   const adminNickname = process.env.SEED_ADMIN_NICKNAME || "Operator";
 
-  const passwordHash = await hashPassword(adminPassword);
-
-  await prisma.user.upsert({
-    where: { email: adminEmail.toLowerCase() },
-    update: {
-      nickname: adminNickname,
-      passwordHash,
-      role: UserRole.ADMIN,
+  const existingUser = await prisma.user.findFirst({
+    where: {
+      OR: [
+        { email: adminEmail },
+        ...(adminDiscordId ? [{ discordId: adminDiscordId }] : []),
+      ],
     },
-    create: {
+  });
+
+  if (existingUser) {
+    await prisma.user.update({
+      where: { id: existingUser.id },
+      data: {
+        nickname: adminNickname,
+        email: adminEmail,
+        role: UserRole.ADMIN,
+        ...(adminDiscordId ? { discordId: adminDiscordId } : {}),
+      },
+    });
+    return;
+  }
+
+  await prisma.user.create({
+    data: {
       nickname: adminNickname,
-      email: adminEmail.toLowerCase(),
-      passwordHash,
+      email: adminEmail,
+      passwordHash: null,
       role: UserRole.ADMIN,
+      ...(adminDiscordId ? { discordId: adminDiscordId } : {}),
     },
   });
 }
