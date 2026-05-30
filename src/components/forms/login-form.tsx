@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useActionState } from "react";
 
 import { loginAction } from "@/actions/auth";
@@ -49,14 +48,6 @@ export function LoginForm() {
           className={`form-banner ${state.status === "error" ? "form-banner-error" : "form-banner-success"}`}
         >
           <p>{state.message}</p>
-          {state.verificationToken ? (
-            <Link
-              href={`/verify?token=${encodeURIComponent(state.verificationToken)}`}
-              className="text-sm font-semibold text-white/90 underline"
-            >
-              Продолжить в Telegram
-            </Link>
-          ) : null}
         </div>
       ) : null}
 

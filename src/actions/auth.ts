@@ -7,7 +7,6 @@ import { redirect } from "next/navigation";
 import { clearSession, createSession, requireUser } from "@/lib/auth";
 import { hashPassword, verifyPassword } from "@/lib/password";
 import { prisma } from "@/lib/prisma";
-import { issueTelegramVerificationToken } from "@/lib/telegram";
 import { slugify } from "@/lib/utils";
 import {
   type FormState,
@@ -19,7 +18,7 @@ import {
 
 function buildInternalEmail(nickname: string) {
   const base = slugify(nickname) || "player";
-  return `${base}-${crypto.randomUUID().slice(0, 8)}@telegram.local`;
+  return `${base}-${crypto.randomUUID().slice(0, 8)}@player.local`;
 }
 
 export async function registerAction(
@@ -46,9 +45,10 @@ export async function registerAction(
   try {
     const existingUser = await prisma.user.findUnique({
       where: { nickname: parsed.data.nickname },
+      select: { id: true },
     });
 
-    if (existingUser?.isVerified) {
+    if (existingUser) {
       return {
         status: "error",
         message: "Такой ник уже занят.",
@@ -58,35 +58,21 @@ export async function registerAction(
 
     const passwordHash = await hashPassword(parsed.data.password);
 
-    const user = existingUser
-      ? await prisma.user.update({
-          where: { id: existingUser.id },
-          data: {
-            nickname: parsed.data.nickname,
-            passwordHash,
-          },
-        })
-      : await prisma.user.create({
-          data: {
-            nickname: parsed.data.nickname,
-            email: buildInternalEmail(parsed.data.nickname),
-            passwordHash,
-          },
-        });
-
-    const verificationToken = await issueTelegramVerificationToken({
-      id: user.id,
-      email: user.email,
-      nickname: user.nickname,
+    await prisma.user.create({
+      data: {
+        nickname: parsed.data.nickname,
+        email: buildInternalEmail(parsed.data.nickname),
+        passwordHash,
+      },
     });
 
     return {
       status: "success",
-      message: "Аккаунт создан. Подтвердите его через Telegram-бота.",
+      message:
+        "Аккаунт создан. Теперь войдите и подключите Discord, чтобы участвовать в турнирах.",
       values: {
-        nickname: user.nickname,
+        nickname: parsed.data.nickname,
       },
-      verificationToken,
     };
   } catch (error) {
     console.error("[registerAction] Unexpected error", error);
@@ -142,23 +128,6 @@ export async function loginAction(
       status: "error",
       message: "Неверный пароль.",
       values: payload,
-    };
-  }
-
-  if (!user.isVerified) {
-    const verificationToken = await issueTelegramVerificationToken({
-      id: user.id,
-      email: user.email,
-      nickname: user.nickname,
-    });
-
-    return {
-      status: "error",
-      message: "Подтвердите аккаунт через Telegram-бота перед входом.",
-      values: {
-        nickname: user.nickname,
-      },
-      verificationToken,
     };
   }
 

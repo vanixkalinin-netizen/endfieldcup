@@ -83,7 +83,6 @@ export type FormState = {
   message?: string;
   fieldErrors?: Record<string, string[] | undefined>;
   values?: Record<string, string>;
-  verificationToken?: string;
 };
 
 export const initialFormState: FormState = {

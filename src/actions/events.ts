@@ -434,13 +434,6 @@ export async function applyToEventAction(
 ): Promise<FormState> {
   const user = await requireUser();
 
-  if (!user.isVerified) {
-    return {
-      status: "error",
-      message: "Подтвердите аккаунт перед регистрацией в событие.",
-    };
-  }
-
   const payload = {
     eventId: String(formData.get("eventId") ?? ""),
     note: String(formData.get("note") ?? ""),

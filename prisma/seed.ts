@@ -18,14 +18,12 @@ async function main() {
       nickname: adminNickname,
       passwordHash,
       role: UserRole.ADMIN,
-      isVerified: true,
     },
     create: {
       nickname: adminNickname,
       email: adminEmail.toLowerCase(),
       passwordHash,
       role: UserRole.ADMIN,
-      isVerified: true,
     },
   });
 }

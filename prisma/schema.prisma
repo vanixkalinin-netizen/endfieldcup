@@ -11,11 +11,6 @@ enum UserRole {
   ADMIN
 }
 
-enum VerificationPurpose {
-  EMAIL_CONFIRMATION
-  TELEGRAM_CONFIRMATION
-}
-
 enum EventStatus {
   DRAFT
   PUBLISHED
@@ -36,7 +31,6 @@ model User {
   passwordHash      String
   bio               String             @default("")
   role              UserRole           @default(USER)
-  isVerified        Boolean            @default(false)
   discordId         String?            @unique
   discordUsername   String?
   discordGlobalName String?
@@ -44,29 +38,10 @@ model User {
   discordLinkedAt   DateTime?
   discordMemberAt   DateTime?
   discordPending    Boolean            @default(false)
-  telegramId        String?            @unique
-  telegramUsername  String?
-  telegramLinkedAt  DateTime?
   createdAt         DateTime           @default(now())
   updatedAt         DateTime           @updatedAt
   applications      EventApplication[]
   notifications     Notification[]
-  verificationCodes VerificationCode[]
-}
-
-model VerificationCode {
-  id         String              @id @default(cuid())
-  email      String
-  code       String
-  purpose    VerificationPurpose @default(EMAIL_CONFIRMATION)
-  expiresAt  DateTime
-  consumedAt DateTime?
-  createdAt  DateTime            @default(now())
-  userId     String?
-  user       User?               @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([email, purpose])
-  @@unique([purpose, code])
 }
 
 model Event {
