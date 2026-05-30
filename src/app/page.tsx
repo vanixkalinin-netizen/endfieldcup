@@ -117,7 +117,7 @@ export default async function Home() {
                 <div className="pointer-events-none absolute inset-x-6 bottom-3 h-px bg-[linear-gradient(90deg,transparent,rgba(211,52,57,0.55),transparent)]" />
                 <div className="pointer-events-none absolute left-1/2 top-1/2 h-28 w-40 -translate-x-1/2 -translate-y-1/2 bg-[radial-gradient(circle,rgba(188,36,44,0.14),transparent_72%)] blur-2xl" />
 
-                <div className="relative flex flex-col gap-3 sm:grid sm:grid-cols-[1.18fr_110px_0.82fr_210px] sm:items-center sm:gap-3">
+                <div className="relative flex flex-col gap-3 sm:grid sm:grid-cols-[minmax(0,1fr)_110px_minmax(0,1fr)] sm:items-center sm:gap-3">
                   {(() => {
                     const firstParticipant = liveMatch.match.participants[0];
                     const secondParticipant = liveMatch.match.participants[1];
@@ -149,7 +149,7 @@ export default async function Home() {
                               <p className="text-[10px] uppercase tracking-[0.3em] text-white/28">
                                 Игрок 1
                               </p>
-                              <p className="mt-1 truncate font-heading text-[1.05rem] font-bold uppercase tracking-[0.06em] text-white sm:text-[1.18rem]">
+                              <p className="mt-1 truncate font-heading text-[1.05rem] font-bold uppercase tracking-[0.06em] text-white sm:text-[1.14rem]">
                                 {firstParticipant.nickname}
                               </p>
                             </div>
@@ -168,7 +168,7 @@ export default async function Home() {
 
                         <div
                           className={cn(
-                            "min-w-0 rounded-[18px] border px-4 py-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] sm:max-w-[176px]",
+                            "min-w-0 rounded-[18px] border px-4 py-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]",
                             secondIsCurrentUser
                               ? "border-[#d43c43]/42 bg-[linear-gradient(180deg,rgba(92,25,29,0.94),rgba(55,14,18,0.94))]"
                               : "border-white/8 bg-[linear-gradient(180deg,rgba(255,255,255,0.025),rgba(255,255,255,0.012))]",
@@ -185,7 +185,7 @@ export default async function Home() {
                               <p className="text-[10px] uppercase tracking-[0.3em] text-white/28">
                                 Игрок 2
                               </p>
-                              <p className="mt-1 truncate font-heading text-[1.05rem] font-bold uppercase tracking-[0.06em] text-white sm:text-[1.18rem]">
+                              <p className="mt-1 truncate font-heading text-[1.05rem] font-bold uppercase tracking-[0.06em] text-white sm:text-[1.14rem]">
                                 {secondParticipant.nickname}
                               </p>
                               {secondIsCurrentUser ? (
@@ -197,10 +197,10 @@ export default async function Home() {
                           </div>
                         </div>
 
-                        <div className="flex sm:self-end sm:pb-1 sm:justify-start">
+                        <div className="flex sm:col-start-3 sm:row-start-2 sm:justify-start">
                           <Link
                             href={`/events/${liveMatch.event.slug}`}
-                            className="primary-button inline-flex min-h-[70px] w-full items-center justify-center text-center leading-6 sm:min-h-[74px] sm:w-[190px]"
+                            className="primary-button inline-flex min-h-[70px] w-full items-center justify-center text-center leading-6 sm:min-h-[74px] sm:w-full"
                           >
                             Открыть текущий матч
                           </Link>
