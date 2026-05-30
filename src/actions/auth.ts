@@ -5,18 +5,16 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { clearSession, createSession, requireUser } from "@/lib/auth";
-import { sendVerificationEmail } from "@/lib/mailer";
 import { hashPassword, verifyPassword } from "@/lib/password";
 import { prisma } from "@/lib/prisma";
+import { issueTelegramVerificationToken } from "@/lib/telegram";
 import {
   type FormState,
   loginSchema,
   passwordChangeSchema,
   profileSchema,
   registerSchema,
-  verifySchema,
 } from "@/lib/validators";
-import { createVerificationCode } from "@/lib/utils";
 
 export async function registerAction(
   _prevState: FormState,
@@ -83,39 +81,19 @@ export async function registerAction(
           },
         });
 
-    const code = createVerificationCode();
-
-    await prisma.verificationCode.deleteMany({
-      where: {
-        email: parsed.data.email,
-        consumedAt: null,
-      },
-    });
-
-    await prisma.verificationCode.create({
-      data: {
-        email: parsed.data.email,
-        code,
-        userId: user.id,
-        expiresAt: new Date(Date.now() + 1000 * 60 * 15),
-      },
-    });
-
-    const mailResult = await sendVerificationEmail({
-      code,
+    const verificationToken = await issueTelegramVerificationToken({
+      id: user.id,
       email: parsed.data.email,
       nickname: parsed.data.nickname,
     });
 
     return {
       status: "success",
-      message: mailResult.delivered
-        ? "Аккаунт создан. Код подтверждения отправлен на почту."
-        : "Аккаунт создан. Почта пока не настроена, поэтому код показан ниже для локальной проверки.",
+      message: "Аккаунт создан. Подтвердите его через Telegram-бота.",
       values: {
         email: parsed.data.email,
       },
-      debugCode: mailResult.debugCode,
+      verificationToken,
     };
   } catch (error) {
     console.error("[registerAction] Unexpected error", error);
@@ -123,90 +101,10 @@ export async function registerAction(
     return {
       status: "error",
       message:
-        "Во время регистрации произошла ошибка. Попробуйте ещё раз чуть позже.",
+        "Во время регистрации произошла ошибка. Попробуйте еще раз чуть позже.",
       values: payload,
     };
   }
-}
-
-export async function verifyAction(
-  _prevState: FormState,
-  formData: FormData,
-): Promise<FormState> {
-  const payload = {
-    email: String(formData.get("email") ?? ""),
-    code: String(formData.get("code") ?? ""),
-  };
-
-  const parsed = verifySchema.safeParse(payload);
-
-  if (!parsed.success) {
-    return {
-      status: "error",
-      message: "Введите корректные данные.",
-      fieldErrors: parsed.error.flatten().fieldErrors,
-      values: payload,
-    };
-  }
-
-  const verificationCode = await prisma.verificationCode.findFirst({
-    where: {
-      email: parsed.data.email,
-      code: parsed.data.code,
-      consumedAt: null,
-      expiresAt: {
-        gt: new Date(),
-      },
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
-    include: {
-      user: true,
-    },
-  });
-
-  if (!verificationCode?.user) {
-    return {
-      status: "error",
-      message: "Код недействителен или уже истёк.",
-      values: payload,
-    };
-  }
-
-  await prisma.$transaction([
-    prisma.user.update({
-      where: { id: verificationCode.user.id },
-      data: {
-        isVerified: true,
-      },
-    }),
-    prisma.verificationCode.update({
-      where: { id: verificationCode.id },
-      data: {
-        consumedAt: new Date(),
-      },
-    }),
-    prisma.verificationCode.deleteMany({
-      where: {
-        userId: verificationCode.user.id,
-        consumedAt: null,
-        id: {
-          not: verificationCode.id,
-        },
-      },
-    }),
-  ]);
-
-  await createSession({
-    id: verificationCode.user.id,
-    email: verificationCode.user.email,
-    nickname: verificationCode.user.nickname,
-    role: verificationCode.user.role,
-  });
-
-  revalidatePath("/");
-  redirect("/dashboard");
 }
 
 export async function loginAction(
@@ -255,12 +153,20 @@ export async function loginAction(
   }
 
   if (!user.isVerified) {
+    const verificationToken = await issueTelegramVerificationToken({
+      id: user.id,
+      email: user.email,
+      nickname: user.nickname,
+    });
+
     return {
       status: "error",
-      message: "Подтвердите аккаунт кодом из письма перед входом.",
+      message:
+        "Подтвердите аккаунт через Telegram-бота перед входом.",
       values: {
         email: user.email,
       },
+      verificationToken,
     };
   }
 
@@ -343,7 +249,7 @@ export async function changePasswordAction(
   if (!matchesCurrentPassword) {
     return {
       status: "error",
-      message: "Текущий пароль введён неверно.",
+      message: "Текущий пароль введен неверно.",
     };
   }
 
@@ -358,7 +264,7 @@ export async function changePasswordAction(
 
   return {
     status: "success",
-    message: "Пароль успешно обновлён.",
+    message: "Пароль успешно обновлен.",
   };
 }
 

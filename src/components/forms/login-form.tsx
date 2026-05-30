@@ -46,18 +46,23 @@ export function LoginForm() {
       </div>
 
       {state.message ? (
-        <div className={`form-banner ${state.status === "error" ? "form-banner-error" : "form-banner-success"}`}>
+        <div
+          className={`form-banner ${state.status === "error" ? "form-banner-error" : "form-banner-success"}`}
+        >
           <p>{state.message}</p>
-          {state.message.includes("Подтвердите аккаунт") && state.values?.email ? (
-            <Link href={`/verify?email=${encodeURIComponent(state.values.email)}`} className="text-sm font-semibold text-white/90 underline">
-              Перейти к подтверждению
+          {state.verificationToken ? (
+            <Link
+              href={`/verify?token=${encodeURIComponent(state.verificationToken)}`}
+              className="text-sm font-semibold text-white/90 underline"
+            >
+              Продолжить в Telegram
             </Link>
           ) : null}
         </div>
       ) : null}
 
       <SubmitButton
-        idleLabel="Войти в систему"
+        idleLabel="Войти"
         pendingLabel="Входим..."
         className="primary-button w-full"
       />

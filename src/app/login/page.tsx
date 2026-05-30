@@ -40,8 +40,8 @@ export default function LoginPage() {
               Войти
             </h3>
             <p className="mt-2 text-sm text-white/52">
-              Если аккаунт еще не подтвержден, сначала завершите подтверждение
-              кода.
+              Если аккаунт еще не подтвержден, вход сразу отправит вас в
+              Telegram-бота для завершения верификации.
             </p>
             <div className="mt-6">
               <LoginForm />

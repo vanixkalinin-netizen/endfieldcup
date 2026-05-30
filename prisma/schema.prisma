@@ -13,6 +13,7 @@ enum UserRole {
 
 enum VerificationPurpose {
   EMAIL_CONFIRMATION
+  TELEGRAM_CONFIRMATION
 }
 
 enum EventStatus {
@@ -36,6 +37,9 @@ model User {
   bio               String             @default("")
   role              UserRole           @default(USER)
   isVerified        Boolean            @default(false)
+  telegramId        String?            @unique
+  telegramUsername  String?
+  telegramLinkedAt  DateTime?
   createdAt         DateTime           @default(now())
   updatedAt         DateTime           @updatedAt
   applications      EventApplication[]
@@ -55,6 +59,7 @@ model VerificationCode {
   user       User?               @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([email, purpose])
+  @@unique([purpose, code])
 }
 
 model Event {

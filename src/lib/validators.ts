@@ -31,17 +31,6 @@ export const loginSchema = z.object({
   password: z.string().min(1, "Введите пароль"),
 });
 
-export const verifySchema = z.object({
-  email: z
-    .string()
-    .email("Введите корректную почту")
-    .transform((value) => value.toLowerCase()),
-  code: z
-    .string()
-    .trim()
-    .regex(/^\d{6}$/, "Код должен состоять из 6 цифр"),
-});
-
 export const eventSchema = z.object({
   title: z
     .string()
@@ -102,7 +91,7 @@ export type FormState = {
   message?: string;
   fieldErrors?: Record<string, string[] | undefined>;
   values?: Record<string, string>;
-  debugCode?: string;
+  verificationToken?: string;
 };
 
 export const initialFormState: FormState = {

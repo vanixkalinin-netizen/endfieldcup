@@ -80,14 +80,16 @@ export function RegisterForm() {
       </div>
 
       {state.message ? (
-        <div className={`form-banner ${state.status === "error" ? "form-banner-error" : "form-banner-success"}`}>
+        <div
+          className={`form-banner ${state.status === "error" ? "form-banner-error" : "form-banner-success"}`}
+        >
           <p>{state.message}</p>
-          {state.debugCode ? (
-            <p className="font-mono text-sm text-[#89b4ff]">DEV CODE: {state.debugCode}</p>
-          ) : null}
-          {state.status === "success" && state.values?.email ? (
-            <Link href={`/verify?email=${encodeURIComponent(state.values.email)}`} className="text-sm font-semibold text-white/90 underline">
-              Перейти к подтверждению аккаунта
+          {state.verificationToken ? (
+            <Link
+              href={`/verify?token=${encodeURIComponent(state.verificationToken)}`}
+              className="text-sm font-semibold text-white/90 underline"
+            >
+              Открыть Telegram-подтверждение
             </Link>
           ) : null}
         </div>
@@ -95,7 +97,7 @@ export function RegisterForm() {
 
       <SubmitButton
         idleLabel="Создать аккаунт"
-        pendingLabel="Создаём аккаунт..."
+        pendingLabel="Создаем аккаунт..."
         className="primary-button w-full"
       />
     </form>

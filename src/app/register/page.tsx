@@ -6,12 +6,16 @@ export default function RegisterPage() {
   return (
     <div className="grid gap-5 xl:grid-cols-[minmax(0,1.15fr)_460px]">
       <section className="panel p-7 md:p-8">
-        <p className="text-xs uppercase tracking-[0.34em] text-[#8891dd]">Recruitment gate</p>
+        <p className="text-xs uppercase tracking-[0.34em] text-[#8891dd]">
+          Recruitment gate
+        </p>
         <h2 className="mt-4 font-heading text-4xl font-bold uppercase tracking-[0.08em] text-white md:text-5xl">
           Регистрация нового игрока
         </h2>
         <p className="mt-4 max-w-2xl text-white/60">
-          Создайте аккаунт по нику, почте и паролю. После этого на указанную почту придёт код подтверждения, и только затем игрок сможет войти и подавать заявки на события.
+          Создайте аккаунт по нику, почте и паролю. После этого мы сразу
+          отправим вас в Telegram-бота, где аккаунт подтвердится за один шаг
+          без почтовых кодов и лишних экранов.
         </p>
       </section>
 
