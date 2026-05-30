@@ -1,8 +1,8 @@
 const avatarGradients = [
-  "from-[#4f5fff] to-[#7960ff]",
-  "from-[#2378ff] to-[#47b2ff]",
-  "from-[#6a55ff] to-[#8e7cff]",
-  "from-[#3f55cc] to-[#6f7bff]",
+  "from-[#641318] to-[#ba2f36]",
+  "from-[#4b0f14] to-[#9e252d]",
+  "from-[#231015] to-[#6c1d22]",
+  "from-[#811a21] to-[#d24845]",
 ];
 
 export function getInitials(nickname: string) {

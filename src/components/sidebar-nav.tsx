@@ -10,11 +10,25 @@ type SidebarNavProps = {
   isAuthenticated: boolean;
 };
 
-const guestItems = [{ href: "/", label: "Главная" }];
+type NavItem = {
+  href: string;
+  hint: string;
+  index: string;
+  label: string;
+};
 
-const userItems = [
-  { href: "/", label: "Главная" },
-  { href: "/dashboard", label: "Мои участия" },
+const guestItems: NavItem[] = [
+  { href: "/", label: "Главная", hint: "Home", index: "01" },
+];
+
+const userItems: NavItem[] = [
+  { href: "/", label: "Главная", hint: "Home", index: "01" },
+  {
+    href: "/dashboard",
+    label: "Мои участия",
+    hint: "My Participations",
+    index: "02",
+  },
 ];
 
 export function SidebarNav({
@@ -24,7 +38,15 @@ export function SidebarNav({
   const pathname = usePathname();
   const baseItems = isAuthenticated ? userItems : guestItems;
   const items = isAdmin
-    ? [...baseItems, { href: "/acp", label: "Админ-панель" }]
+    ? [
+        ...baseItems,
+        {
+          href: "/acp",
+          label: "Админ-панель",
+          hint: "Admin Panel",
+          index: "03",
+        },
+      ]
     : baseItems;
 
   const isActive = (href: string) => {
@@ -43,7 +65,17 @@ export function SidebarNav({
           href={item.href}
           className={cn("nav-item", isActive(item.href) && "nav-item-active")}
         >
-          {item.label}
+          <span className="font-heading text-base font-bold tracking-[0.08em] text-white/54">
+            {item.index}
+          </span>
+          <span className="min-w-0">
+            <span className="block truncate font-heading text-[0.92rem] font-bold uppercase tracking-[0.08em] text-white">
+              {item.label}
+            </span>
+            <span className="mt-1 block text-[10px] uppercase tracking-[0.24em] text-white/28">
+              {item.hint}
+            </span>
+          </span>
         </Link>
       ))}
     </nav>

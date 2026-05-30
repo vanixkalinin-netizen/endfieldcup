@@ -22,19 +22,19 @@ export function StatusPill({ status }: StatusPillProps) {
       className={cn(
         "inline-flex max-w-[14rem] items-center justify-center rounded-full border px-3 py-1.5 text-center text-[10px] font-semibold uppercase tracking-[0.16em]",
         status === "CLOSED" &&
-          "border-[#b9852f] bg-[#b9852f]/18 text-[#f8d79a]",
+          "border-[#a26b32]/36 bg-[#a26b32]/18 text-[#f0cf9f]",
         status === "COMPLETED" &&
-          "border-[#7d2631] bg-[#7d2631]/18 text-[#ffb9c5]",
+          "border-[#7d1f29]/40 bg-[#7d1f29]/18 text-[#ffc0c9]",
         status === "PUBLISHED" &&
-          "border-[#4158ff] bg-[#4158ff]/18 text-[#aab8ff]",
+          "border-[#d43c43]/40 bg-[#d43c43]/16 text-[#ffd2d2]",
         status === "APPROVED" &&
-          "border-[#4158ff] bg-[#4158ff]/18 text-[#aab8ff]",
+          "border-[#d43c43]/40 bg-[#d43c43]/16 text-[#ffd2d2]",
         status === "PENDING" &&
           "border-white/10 bg-white/6 text-white/70",
         status === "DRAFT" &&
           "border-white/10 bg-white/6 text-white/70",
         status === "REJECTED" &&
-          "border-[#7d2631] bg-[#7d2631]/18 text-[#ffb9c5]",
+          "border-[#7d1f29]/40 bg-[#7d1f29]/18 text-[#ffc0c9]",
       )}
     >
       {statusLabels[status]}

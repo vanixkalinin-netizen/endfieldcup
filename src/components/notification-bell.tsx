@@ -148,7 +148,7 @@ export function NotificationBell({
         </svg>
 
         {unreadCount ? (
-          <span className="absolute right-0.5 top-0.5 flex min-h-5 min-w-5 items-center justify-center rounded-full bg-[#4aa86d] px-1.5 text-[10px] font-bold text-white shadow-[0_0_20px_rgba(74,168,109,0.35)]">
+          <span className="absolute right-0.5 top-0.5 flex min-h-5 min-w-5 items-center justify-center rounded-full bg-[#d43c43] px-1.5 text-[10px] font-bold text-white shadow-[0_0_20px_rgba(212,60,67,0.35)]">
             {unreadCount > 9 ? "9+" : unreadCount}
           </span>
         ) : null}
@@ -193,7 +193,7 @@ export function NotificationBell({
                       "block w-full rounded-[18px] border p-4 text-left transition-colors",
                       notification.isRead
                         ? "border-white/8 bg-white/[0.03] text-white/68 hover:border-white/14 hover:text-white"
-                        : "border-[#4aa86d]/28 bg-[#102117] text-white hover:border-[#4aa86d]/46",
+                        : "border-[#d43c43]/28 bg-[#2b1013] text-white hover:border-[#d43c43]/46",
                     )}
                   >
                     <div className="flex items-start justify-between gap-3">
@@ -210,7 +210,7 @@ export function NotificationBell({
                       </div>
 
                       {!notification.isRead ? (
-                        <span className="mt-1 h-2.5 w-2.5 shrink-0 rounded-full bg-[#4aa86d]" />
+                        <span className="mt-1 h-2.5 w-2.5 shrink-0 rounded-full bg-[#d43c43]" />
                       ) : null}
                     </div>
                   </button>

@@ -453,10 +453,10 @@ export function EventBracket({
         className={cn(
           "flex h-[40px] items-center justify-between gap-3 rounded-[14px] border px-3",
           match.isLive && !isWinner
-            ? "border-[#4aa86d]/45 bg-[#112419] text-white"
+            ? "border-[#d43c43]/45 bg-[#2c1114] text-white"
             : isWinner
-            ? "border-[#4e78ff]/48 bg-[#132040] text-white"
-            : "border-[#4158ff]/20 bg-[#0f1320] text-white",
+            ? "border-[#f07478]/48 bg-[#341317] text-white"
+            : "border-[#d43c43]/20 bg-[#120d0f] text-white",
         )}
       >
         <div className="flex min-w-0 items-center gap-2">
@@ -478,7 +478,7 @@ export function EventBracket({
               {participant.nickname}
             </p>
             {showDiscordNicknames ? (
-              <p className="mt-0.5 truncate text-[10px] text-[#8f9dff]">
+              <p className="mt-0.5 truncate text-[10px] text-[#ff9ea1]">
                 {participant.discordNickname}
               </p>
             ) : null}
@@ -499,8 +499,8 @@ export function EventBracket({
               className={cn(
                 "flex h-7 w-7 items-center justify-center rounded-full border text-[10px] font-semibold uppercase tracking-[0.18em] transition-colors",
                 isWinner
-                  ? "border-[#7b93ff] bg-[#4e78ff] text-white"
-                  : "border-white/12 bg-white/[0.05] text-white/60 hover:border-[#4e78ff]/50 hover:text-white",
+                  ? "border-[#ff8d90] bg-[#d43c43] text-white"
+                  : "border-white/12 bg-white/[0.05] text-white/60 hover:border-[#d43c43]/50 hover:text-white",
               )}
             >
               W
@@ -562,7 +562,7 @@ export function EventBracket({
             className={cn(
               "absolute rounded-[20px] border bg-[#11141b]/90 p-2 shadow-[0_18px_42px_rgba(0,0,0,0.22)]",
               matchLayout.match.isLive
-                ? "border-[#4aa86d]/70 bg-[#0f1a13]/95 shadow-[0_0_0_1px_rgba(74,168,109,0.28),0_18px_42px_rgba(0,0,0,0.28),0_0_34px_rgba(74,168,109,0.26)]"
+                ? "border-[#d43c43]/70 bg-[#190d10]/95 shadow-[0_0_0_1px_rgba(212,60,67,0.28),0_18px_42px_rgba(0,0,0,0.28),0_0_34px_rgba(212,60,67,0.22)]"
                 : "border-white/8",
             )}
             style={{
@@ -578,13 +578,13 @@ export function EventBracket({
                   <span
                     className={cn(
                       "h-2 w-2 rounded-full",
-                      matchLayout.match.isLive ? "bg-[#4aa86d]" : "bg-white/14",
+                      matchLayout.match.isLive ? "bg-[#d43c43]" : "bg-white/14",
                     )}
                   />
                   <span
                     className={cn(
                       "text-[9px] font-semibold uppercase tracking-[0.28em]",
-                      matchLayout.match.isLive ? "text-[#b7f7ca]" : "text-white/30",
+                      matchLayout.match.isLive ? "text-[#ffd4d4]" : "text-white/30",
                     )}
                   >
                     {matchLayout.match.isLive ? "LIVE" : "MATCH"}
@@ -609,8 +609,8 @@ export function EventBracket({
                       className={cn(
                         "flex h-6 w-6 items-center justify-center rounded-full border text-[10px] font-semibold uppercase tracking-[0.18em] transition-colors",
                         matchLayout.match.isLive
-                          ? "border-[#7ee29d] bg-[#2f8f52] text-white"
-                          : "border-white/12 bg-white/[0.05] text-white/60 hover:border-[#4aa86d]/50 hover:text-white",
+                          ? "border-[#ff9a9d] bg-[#d43c43] text-white"
+                          : "border-white/12 bg-white/[0.05] text-white/60 hover:border-[#d43c43]/50 hover:text-white",
                       )}
                     >
                       A

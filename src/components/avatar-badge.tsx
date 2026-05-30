@@ -22,7 +22,7 @@ export function AvatarBadge({
   return (
     <div
       className={cn(
-        "relative inline-grid place-items-center overflow-hidden rounded-full border border-white/10 bg-gradient-to-br font-heading font-bold uppercase text-white shadow-[0_18px_40px_rgba(52,69,255,0.22)]",
+        "relative inline-grid place-items-center overflow-hidden rounded-full border border-white/10 bg-gradient-to-br font-heading font-bold uppercase text-white shadow-[0_18px_40px_rgba(145,28,33,0.28)]",
         getAvatarGradient(nickname),
         sizeClasses[size],
         className,

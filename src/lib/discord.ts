@@ -273,7 +273,7 @@ export function getDiscordFeedback(status: string | null | undefined) {
 export function getDiscordFeedbackClasses(tone: DiscordFeedbackTone) {
   switch (tone) {
     case "success":
-      return "rounded-[18px] border border-[#4aa86d]/30 bg-[#4aa86d]/14 p-4 text-sm text-[#c7f2d6]";
+      return "rounded-[18px] border border-[#d43c43]/30 bg-[#d43c43]/14 p-4 text-sm text-[#ffd1d2]";
     case "warning":
       return "rounded-[18px] border border-[#b9852f]/28 bg-[#b9852f]/14 p-4 text-sm text-[#f8ddb0]";
     case "error":
