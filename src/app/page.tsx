@@ -116,7 +116,7 @@ export default async function Home() {
                   className="pointer-events-none absolute inset-0 bg-center bg-no-repeat opacity-70"
                   style={{
                     backgroundImage: "url('/live-match-vs-emblem.png')",
-                    backgroundSize: "698px auto",
+                    backgroundSize: "100% 100%",
                   }}
                 />
                 <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,70,70,0.05),transparent_30%),linear-gradient(90deg,rgba(120,18,24,0.08),transparent_18%,transparent_82%,rgba(120,18,24,0.08))]" />
