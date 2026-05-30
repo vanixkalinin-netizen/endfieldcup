@@ -115,7 +115,7 @@ export default async function Home() {
                 <div
                   className="pointer-events-none absolute inset-0 bg-center bg-no-repeat opacity-70"
                   style={{
-                    backgroundImage: "url('/live-match-vs-emblem.svg')",
+                    backgroundImage: "url('/live-match-vs-emblem.png')",
                     backgroundSize: "930px auto",
                   }}
                 />
