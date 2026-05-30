@@ -30,6 +30,12 @@ type DiscordGuildMemberResponse = {
   pending?: boolean;
 };
 
+type DiscordUserGuildResponse = {
+  id: string;
+  owner?: boolean;
+  permissions?: string;
+};
+
 export type DiscordFeedbackTone = "success" | "warning" | "error";
 
 export type DiscordFeedback = {
@@ -144,7 +150,7 @@ export function buildDiscordAuthorizationUrl(state: string) {
   const url = new URL("https://discord.com/oauth2/authorize");
   url.searchParams.set("response_type", "code");
   url.searchParams.set("client_id", config.clientId);
-  url.searchParams.set("scope", "identify guilds.members.read");
+  url.searchParams.set("scope", "identify guilds guilds.members.read");
   url.searchParams.set("state", state);
   url.searchParams.set("redirect_uri", config.redirectUri);
 
@@ -223,6 +229,49 @@ export async function fetchDiscordGuildMember(accessToken: string) {
   }
 
   return parseDiscordJson<DiscordGuildMemberResponse>(response);
+}
+
+export async function fetchDiscordGuildAccess(accessToken: string) {
+  const config = readDiscordConfig();
+
+  if (!config) {
+    throw new Error("Discord OAuth is not configured.");
+  }
+
+  const response = await fetch("https://discord.com/api/v10/users/@me/guilds", {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+    cache: "no-store",
+  });
+
+  const guilds = await parseDiscordJson<DiscordUserGuildResponse[]>(response);
+
+  return guilds.find((guild) => guild.id === config.guildId) ?? null;
+}
+
+export function isDiscordGuildAdmin(guild: {
+  owner?: boolean;
+  permissions?: string;
+} | null) {
+  if (!guild) {
+    return false;
+  }
+
+  if (guild.owner) {
+    return true;
+  }
+
+  if (!guild.permissions) {
+    return false;
+  }
+
+  const administratorPermission = BigInt("8");
+
+  return (
+    (BigInt(guild.permissions) & administratorPermission) ===
+    administratorPermission
+  );
 }
 
 export function resolveDiscordApplicationNickname(

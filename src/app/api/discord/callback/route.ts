@@ -1,3 +1,4 @@
+import { UserRole } from "@prisma/client";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
@@ -6,10 +7,12 @@ import {
   buildDiscordInternalEmail,
   DISCORD_OAUTH_COOKIE,
   exchangeDiscordCode,
+  fetchDiscordGuildAccess,
   fetchDiscordGuildMember,
   fetchDiscordUser,
   getDiscordAppOrigin,
   getPreferredDiscordNickname,
+  isDiscordGuildAdmin,
   isDiscordAuthConfigured,
   sanitizeDiscordNextPath,
 } from "@/lib/discord";
@@ -106,6 +109,8 @@ export async function GET(request: Request) {
     const token = await exchangeDiscordCode(code);
     const discordUser = await fetchDiscordUser(token.access_token);
     const guildMember = await fetchDiscordGuildMember(token.access_token);
+    const guildAccess = await fetchDiscordGuildAccess(token.access_token);
+    const role = isDiscordGuildAdmin(guildAccess) ? UserRole.ADMIN : UserRole.USER;
     const now = new Date();
     const isPending = Boolean(guildMember?.pending);
     const discordData = {
@@ -116,6 +121,7 @@ export async function GET(request: Request) {
       discordLinkedAt: now,
       discordMemberAt: guildMember && !isPending ? now : null,
       discordPending: isPending,
+      role,
     };
 
     const existingDiscordUser = await prisma.user.findUnique({
