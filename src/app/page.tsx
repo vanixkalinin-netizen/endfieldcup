@@ -112,6 +112,13 @@ export default async function Home() {
               </div>
 
               <div className="relative overflow-hidden rounded-[24px] border border-[rgba(255,70,70,0.16)] bg-[linear-gradient(180deg,rgba(8,7,8,0.99),rgba(10,7,9,0.95))] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] md:p-5">
+                <div
+                  className="pointer-events-none absolute inset-0 bg-center bg-no-repeat opacity-70"
+                  style={{
+                    backgroundImage: "url('/live-match-vs-emblem.svg')",
+                    backgroundSize: "930px auto",
+                  }}
+                />
                 <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,70,70,0.05),transparent_30%),linear-gradient(90deg,rgba(120,18,24,0.08),transparent_18%,transparent_82%,rgba(120,18,24,0.08))]" />
                 <div className="pointer-events-none absolute inset-x-4 top-0 h-px bg-[linear-gradient(90deg,transparent,rgba(211,52,57,0.55),transparent)]" />
                 <div className="pointer-events-none absolute inset-x-6 bottom-3 h-px bg-[linear-gradient(90deg,transparent,rgba(211,52,57,0.55),transparent)]" />
@@ -156,15 +163,7 @@ export default async function Home() {
                           </div>
                         </div>
 
-                        <div className="flex items-center justify-center py-1 sm:py-0">
-                          <div className="relative flex h-[84px] w-[84px] items-center justify-center rounded-full border border-[#d43c43]/24 bg-[radial-gradient(circle,rgba(212,60,67,0.08),rgba(11,7,9,0.16))]">
-                            <div className="absolute left-[-12px] top-1/2 h-px w-4 -translate-y-1/2 bg-[#d43c43]/44" />
-                            <div className="absolute right-[-12px] top-1/2 h-px w-4 -translate-y-1/2 bg-[#d43c43]/44" />
-                            <span className="font-heading text-[2.15rem] font-bold uppercase tracking-[0.1em] text-[#ff666a]">
-                              VS
-                            </span>
-                          </div>
-                        </div>
+                        <div className="flex h-[84px] items-center justify-center py-1 sm:py-0" />
 
                         <div
                           className={cn(
