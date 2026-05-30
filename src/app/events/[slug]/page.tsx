@@ -82,14 +82,16 @@ export default async function EventPage({
   const discordConfigured = isDiscordAuthConfigured();
   const discordGuildName = getDiscordGuildName();
   const discordInviteUrl = getDiscordGuildInviteUrl();
+  const isAdminViewer = currentUser?.role === UserRole.ADMIN;
   const discordIdentity = currentUser
     ? resolveDiscordIdentityLabel(currentUser)
     : null;
   const isDiscordReady = Boolean(
-    currentUser?.discordId &&
-      currentUser.discordLinkedAt &&
-      currentUser.discordMemberAt &&
-      !currentUser.discordPending,
+    isAdminViewer ||
+      (currentUser?.discordId &&
+        currentUser.discordLinkedAt &&
+        currentUser.discordMemberAt &&
+        !currentUser.discordPending),
   );
   const discordConnectHref = `/api/discord/connect?next=${encodeURIComponent(
     `/events/${event.slug}`,

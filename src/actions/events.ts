@@ -433,6 +433,7 @@ export async function applyToEventAction(
   formData: FormData,
 ): Promise<FormState> {
   const user = await requireUser();
+  const isAdmin = user.role === "ADMIN";
 
   const payload = {
     eventId: String(formData.get("eventId") ?? ""),
@@ -450,7 +451,7 @@ export async function applyToEventAction(
     };
   }
 
-  if (!isDiscordAuthConfigured()) {
+  if (!isAdmin && !isDiscordAuthConfigured()) {
     return {
       status: "error",
       message:
@@ -459,7 +460,7 @@ export async function applyToEventAction(
     };
   }
 
-  if (!user.discordId || !user.discordLinkedAt) {
+  if (!isAdmin && (!user.discordId || !user.discordLinkedAt)) {
     return {
       status: "error",
       message:
@@ -468,7 +469,7 @@ export async function applyToEventAction(
     };
   }
 
-  if (user.discordPending) {
+  if (!isAdmin && user.discordPending) {
     return {
       status: "error",
       message:
@@ -477,7 +478,7 @@ export async function applyToEventAction(
     };
   }
 
-  if (!user.discordMemberAt) {
+  if (!isAdmin && !user.discordMemberAt) {
     return {
       status: "error",
       message:
